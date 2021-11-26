@@ -20,18 +20,21 @@ const Signup = ({navigation}) => {
     }
 
     return (
-        <SafeAreaView style={[tw`bg-white h-full`]}>
+        <SafeAreaView style={[tw`bg-yellow-400 h-full`]}>
             <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={tw`flex-1`}>
                 <View style={[tw`m-auto flex items-center`]}>
+                <Text style={[tw`text-black text-3xl font-semi-bold mb-10`]}>Create your account</Text>
                     <TextInput
-                        style={[tw`border-2 border-black rounded-xl w-80 h-12 mb-4 pl-2 pr-2`]}
+                        style={[tw`border-2 bg-white border-black rounded-xl w-80 h-12 mb-4 pl-2 pr-2`]}
                         onChangeText={(e) => { setEmail(e) }}
+                        placeholder="Email"
                         value={email}
                     />
                     <TextInput
-                        style={[tw`border-2 border-black rounded-xl w-80 h-12 pl-2 pr-2 mb-4`]}
+                        style={[tw`border-2 border-black bg-white rounded-xl w-80 h-12 pl-2 pr-2 mb-4`]}
                         onChangeText={(e) => { setPassword(e) }}
+                        placeholder="Password"
                         value={password}
                         secureTextEntry={true}
 
