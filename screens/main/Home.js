@@ -41,33 +41,33 @@ const Home = () => {
     // }, [])
 
     useEffect(() => {
-        (async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                setErrorMsg('Permission to access location was denied');
-                return;
-            }
+        // (async () => {
+        //     let { status } = await Location.requestForegroundPermissionsAsync();
+        //     if (status !== 'granted') {
+        //         setErrorMsg('Permission to access location was denied');
+        //         return;
+        //     }
 
-            let location = await Location.getCurrentPositionAsync({});
-            //   setLocation(location);
-            console.log(location);
-            setLng(location.coords.longitude)
-            setLat(location.coords.latitude)
-            var latIn = location.coords.latitude
-            var lngIn = location.coords.longitude
-            setInitialRegion({
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-                longitudeDelta: 0.0421,
-                latitudeDelta: 0.0922
-            })
-            mapRef.current.animateToRegion({
-                latIn,
-                lngIn,
-                latitudeDelta: 0.1,
-                longitudeDelta: 0.1
-            })
-        })();
+        //     let location = await Location.getCurrentPositionAsync({});
+        //     //   setLocation(location);
+        //     console.log(location);
+        //     setLng(location.coords.longitude)
+        //     setLat(location.coords.latitude)
+        //     var latIn = location.coords.latitude
+        //     var lngIn = location.coords.longitude
+        //     setInitialRegion({
+        //         latitude: location.coords.latitude,
+        //         longitude: location.coords.longitude,
+        //         longitudeDelta: 1,
+        //         latitudeDelta: 1
+        //     })
+        //     mapRef.current.animateToRegion({
+        //         latIn,
+        //         lngIn,
+        //         latitudeDelta: 1,
+        //         longitudeDelta: 1
+        //     })
+        // })();
     }, []);
 
     const checkPermission = async () => {
@@ -91,7 +91,7 @@ const Home = () => {
     }
 
     return (
-        <View style={tw`flex-1`}>
+        <View style={tw`relative flex-1 justify-between bg-black`}>
             <MapView
                 style={StyleSheet.absoluteFillObject}
                 provider={MapView.PROVIDER_GOOGLE}
@@ -100,10 +100,18 @@ const Home = () => {
             >
 
             </MapView>
-            <SafeAreaView>
-                <Text>{lat}</Text>
-                <Text>{lng}</Text>
-            </SafeAreaView>
+            <View></View>
+            <View style={tw``}>
+                {/* <Text>{lat}</Text>
+                <Text>{lng}</Text> */}
+                <View style={tw`bg-white h-80`}>
+                    <View style={tw`flex justify-center bg-blue-400`}>
+                        <View style={tw`w-20 h-1 rounded-full bg-gray-400`}></View>
+
+                    </View>
+
+                </View>
+            </View>
 
         </View>
     )

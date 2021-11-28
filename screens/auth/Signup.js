@@ -24,7 +24,7 @@ const Signup = ({navigation}) => {
             <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={tw`flex-1`}>
                 <View style={[tw`m-auto flex items-center`]}>
-                <Text style={[tw`text-black text-3xl font-semi-bold mb-10`]}>Create your account</Text>
+                <Text style={[tw`text-black text-3xl font-semibold mb-10`]}>Create your account</Text>
                     <TextInput
                         style={[tw`border-2 bg-white border-black rounded-xl w-80 h-12 mb-4 pl-2 pr-2`]}
                         onChangeText={(e) => { setEmail(e) }}
