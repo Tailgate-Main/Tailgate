@@ -1,5 +1,5 @@
 import React from 'react'
-import {  StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {  Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Icon } from 'react-native-elements/dist/icons/Icon'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import tw from 'tailwind-react-native-classnames'
@@ -7,8 +7,17 @@ import {FontAwesome5 ,Entypo} from '@expo/vector-icons';
 const Home = () => {
     return (
         <>
-        
+        {/* <SafeAreaView style={[tw`bg-white h-full`]}>
+            <Image
+             style={{width:300, height:300,}}
+             source={{uri:"https://i.ibb.co/v4RZ6Zn/download.jpg"}}
+             />
+        </SafeAreaView> */}
         <SafeAreaView style={[tw`bg-white h-full`]}>
+        <Image
+             style={{width:400, height:400,}}
+             source={{uri:"https://i.ibb.co/v4RZ6Zn/download.jpg"}}
+             />
             <Text style={tw`font-bold mx-6`}> Groups </Text>   
             <View style={tw`flex-row items-start`}>
              <View style={tw`mx-5`}>
