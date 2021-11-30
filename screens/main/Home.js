@@ -7,12 +7,7 @@ import {FontAwesome5 ,Entypo} from '@expo/vector-icons';
 const Home = () => {
     return (
         <>
-        {/* <SafeAreaView style={[tw`bg-white h-full`]}>
-            <Image
-             style={{width:300, height:300,}}
-             source={{uri:"https://i.ibb.co/v4RZ6Zn/download.jpg"}}
-             />
-        </SafeAreaView> */}
+      
         <SafeAreaView style={[tw`bg-white h-full`]}>
         <Image
              style={{width:400, height:400,}}
