@@ -29,7 +29,6 @@ const Login = ({ navigation }) => {
                 const {email, name, photoUrl} = user
                 alert("Sign in successful!")
                 alert(email)
-                alert(name)
                 alert(photoUrl)
             }else{
                 alert("Sign in not successful")
