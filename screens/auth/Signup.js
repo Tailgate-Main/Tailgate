@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
-import { View, Text, TextInput, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, StyleSheet} from 'react-native'
+import { View, Text, TextInput, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Image } from 'react-native'
 import tw from 'tailwind-react-native-classnames';
 import { auth, db } from '../../config/firebaseConfig';
+import * as Google from "expo-google-app-auth"
+import firebase from 'firebase';
 
-const Signup = ({navigation}) => {
+const Signup = ({ navigation }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("")
 
@@ -19,12 +21,47 @@ const Signup = ({navigation}) => {
         navigation.navigate("home")
     }
 
+    const handleGoogleSignup = async () => {
+        const config = {
+            iosClientId: "1055584929031-rc0dq5304qqlpeed6tpsrvppsnh7db7n.apps.googleusercontent.com",
+            androidClientId: "1055584929031-knk8nandd57812sl00c2n550bnj2veqm.apps.googleusercontent.com",
+            scopes: ['profile', 'email']
+        }
+
+        Google.logInAsync(config)
+            .then((result) => {
+                const { type, user } = result
+                console.log()
+                if (type === "success") {
+                    console.log(result)
+                    const { idToken, accessToken } = result;
+                    console.log("EHRERER")
+                    const credential = firebase.auth.GoogleAuthProvider
+                    .credential(idToken, accessToken);
+                    console.log("WEIUWEIUGEFIG")
+                    firebase.auth().signInWithCredential(credential)
+                        .then(res => {
+                            // user res, create your user, do whatever you want
+                        })
+                        .catch(error => {
+                            console.log("firebase cred err:", error);
+                        });
+                } else {
+                    return { cancelled: true };
+                }
+            })
+            .catch((error) => {
+                console.log(error)
+                alert("AN ERROR OCCURRED")
+            })
+    }
+
     return (
         <SafeAreaView style={[tw`bg-yellow-400 h-full`]}>
             <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={tw`flex-1`}>
                 <View style={[tw`m-auto flex items-center`]}>
-                <Text style={[tw`text-black text-3xl font-semibold mb-10`]}>Create your account</Text>
+                    <Text style={[tw`text-black text-3xl font-semibold mb-10`]}>Create your account</Text>
                     <TextInput
                         style={[tw`border-2 bg-white border-black rounded-xl w-80 h-12 mb-4 pl-2 pr-2`]}
                         onChangeText={(e) => { setEmail(e) }}
@@ -46,10 +83,16 @@ const Signup = ({navigation}) => {
                     </TouchableOpacity>
                     <View style={[tw`flex flex-row`]}>
                         <Text style={[tw`mr-2 text-lg`]}>Already have an account?</Text>
-                        <TouchableOpacity onPress={() => {navigation.navigate("login")}}>
+                        <TouchableOpacity onPress={() => { navigation.navigate("login") }}>
                             <Text style={[tw`mr-2 text-lg text-blue-600`]}>Login here!</Text>
                         </TouchableOpacity>
                     </View>
+                    <TouchableOpacity style={[tw`flex flex-row justify-around p-2.5 bg-white rounded-xl w-60 mt-2 border-2 border-black`]} onPress={() => { handleGoogleSignup() }}>
+                        <Image source={require('../../assets/login_Img/google.png')} />
+                        <Text style={[tw`text-black text-lg`]}>
+                            Sign in with Google
+                        </Text>
+                    </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
 
