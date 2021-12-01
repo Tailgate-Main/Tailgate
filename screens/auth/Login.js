@@ -1,9 +1,10 @@
-import React, {useState} from 'react'
-import { View, Text, SafeAreaView, KeyboardAvoidingView, TouchableOpacity, TextInput,Image} from 'react-native'
+import React, { useState } from 'react'
+import { View, Text, SafeAreaView, KeyboardAvoidingView, TouchableOpacity, TextInput, Image } from 'react-native'
 import { auth } from '../../config/firebaseConfig';
 import tw from "tailwind-react-native-classnames"
+import * as Google from "expo-google-app-auth"
 
-const Login = ({navigation}) => {
+const Login = ({ navigation }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("")
 
@@ -11,6 +12,33 @@ const Login = ({navigation}) => {
         await auth.signInWithEmailAndPassword(email, password)
         console.log("HELLOOOOOOOO")
         navigation.navigate("home")
+    }
+
+    const handleGoogleLogin = () => {
+        const config = {
+            iosClientId: "1055584929031-rc0dq5304qqlpeed6tpsrvppsnh7db7n.apps.googleusercontent.com",
+            androidClientId: "1055584929031-knk8nandd57812sl00c2n550bnj2veqm.apps.googleusercontent.com",
+            scopes: ['profile', 'email']
+        }
+
+        Google.logInAsync(config)
+        .then((result) => {
+            const {type, user} = result
+            console.log()
+            if(type === "success"){
+                const {email, name, photoUrl} = user
+                alert("Sign in successful!")
+                alert(email)
+                alert(name)
+                alert(photoUrl)
+            }else{
+                alert("Sign in not successful")
+            }
+        })
+        .catch((error) => {
+            console.log(error)
+            alert("AN ERROR OCCURRED")
+        })
     }
 
     return (
@@ -40,14 +68,14 @@ const Login = ({navigation}) => {
                     </TouchableOpacity>
                     <View style={[tw`flex flex-row`]}>
                         <Text style={[tw`mr-2 text-lg`]}>Don't have an account?</Text>
-                        <TouchableOpacity onPress={() => {navigation.navigate("signup")}}>
+                        <TouchableOpacity onPress={() => { navigation.navigate("signup") }}>
                             <Text style={[tw`mr-2 text-lg text-blue-600`]}>Signup here!</Text>
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={[tw`flex flex-row justify-around p-2.5 bg-white rounded-xl w-60 mt-2 border-2 border-black`]} onPress={() => { handleLogin() }}>
+                    <TouchableOpacity style={[tw`flex flex-row justify-around p-2.5 bg-white rounded-xl w-60 mt-2 border-2 border-black`]} onPress={() => { handleGoogleLogin() }}>
                         <Image source={require('../../assets/login_Img/google.png')} />
                         <Text style={[tw`text-black text-lg`]}>
-                        Sign in with Google
+                            Sign in with Google
                         </Text>
                     </TouchableOpacity>
                 </View>
