@@ -87,11 +87,11 @@ const Signup = ({ navigation }) => {
                             <Text style={[tw`mr-2 text-lg text-blue-600`]}>Login here!</Text>
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={[tw`flex flex-row justify-around p-2.5 bg-white rounded-xl w-60 mt-2 border-2 border-black`]} onPress={() => { handleGoogleSignup() }}>
+                    <TouchableOpacity style={[tw`flex flex-row p-2.5 bg-white rounded-xl w-80 mt-2 border-2 border-black justify-between px-14`]} onPress={() => { handleGoogleSignup() }}>
                         <Image source={require('../../assets/login_Img/google.png')} />
                         <Text style={[tw`text-black text-lg`]}>
                             Sign in with Google
-                        </Text>
+                        </Text>                        
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>

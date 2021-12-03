@@ -71,9 +71,9 @@ const Login = ({ navigation }) => {
                             <Text style={[tw`mr-2 text-lg text-blue-600`]}>Signup here!</Text>
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={[tw`flex flex-row justify-around p-2.5 bg-white rounded-xl w-60 mt-2 border-2 border-black`]} onPress={() => { handleGoogleLogin() }}>
+                    <TouchableOpacity style={[tw`flex flex-row p-2.5 bg-white rounded-xl w-80 mt-2 border-2 border-black justify-between px-14`]} onPress={() => { handleGoogleLogin() }}>
                         <Image source={require('../../assets/login_Img/google.png')} />
-                        <Text style={[tw`text-black text-lg`]}>
+                        <Text style={[tw`text-black text-lg text-center`]}>
                             Sign in with Google
                         </Text>
                     </TouchableOpacity>
