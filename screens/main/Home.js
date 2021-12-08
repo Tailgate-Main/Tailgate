@@ -50,8 +50,6 @@ const Home = () => {
 
                 </View>
             </View>
-
-
         </>
     )
 }
