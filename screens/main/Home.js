@@ -1,45 +1,86 @@
 import React from 'react'
-import {  Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { Icon } from 'react-native-elements/dist/icons/Icon'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import tw from 'tailwind-react-native-classnames'
-import {FontAwesome5 ,Entypo} from '@expo/vector-icons'; 
+import { FontAwesome5, Entypo } from '@expo/vector-icons';
+import Map from '../../components/Map';
+import Item from 'antd/lib/list/Item';
+import { FlatList } from 'react-native-gesture-handler';
 const Home = () => {
+    const data = [
+        { id: 1, bgColor: "bg-yellow-400", icon: "plus" },
+        { id: 2, title: "bbq", bgColor: "bg-blue-400", icon: "user-friends" },
+        { id: 3, title: "kpc", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 4, title: "mfc", bgColor: "bg-blue-400", icon: "user-friends" },
+        { id: 5, title: "jhg", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 6, title: "ddq", bgColor: "bg-blue-400", icon: "user-friends" },
+        { id: 7, title: "uiy", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 8, title: "ddg", bgColor: "bg-blue-400", icon: "user-friends" },
+        { id: 9, title: "red", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 10, title: "der", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 11, title: "opt", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 12, title: "qwe", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 13, title: "ere", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 14, title: "pos", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 15, title: "kpl", bgColor: "bg-pink-300", icon: "user-friends" },
+
+
+    ]
     return (
         <>
-      
-        <SafeAreaView style={[tw`bg-white h-full`]}>
-        <Image
-             style={{width:400, height:400,}}
-             source={{uri:"https://i.ibb.co/v4RZ6Zn/download.jpg"}}
-             />
-            <Text style={tw`font-bold mx-6`}> Groups </Text>   
-            <View style={tw`flex-row items-start`}>
-             <View style={tw`mx-5`}>
-             <TouchableOpacity style={tw`items-center justify-center rounded-full w-16 h-16 bg-yellow-400`}>
-                  <Entypo name="plus" size={24} color="black"/>
-              </TouchableOpacity>  
-             </View>
-            <View style={tw`mx-5`}> 
-            <TouchableOpacity  style={tw`items-center justify-center rounded-full w-16 h-16 bg-blue-400`}>
-                  <FontAwesome5  name="user-friends" size={24} color="black"/>     
-              </TouchableOpacity>  
-              <Text style={tw`uppercase text-center`}>bbq</Text>  
+            <View>
+                <View style={tw`h-1/2`}>
+                    <Map />
+                </View>
+                <View style={tw`h-1/2 rounded-full`}>
+                    <View style={[tw`bg-white h-full `]}>
+
+
+                        <View style={tw`mt-4 flex mx-auto w-20 rounded-full`}>
+                            <View style={tw` h-1 rounded-full bg-gray-400`}></View>
+
+                        </View>
+                        <View style={tw`p-4`}>
+                            <Text style={tw`font-semibold text-3xl mb-4`}> Groups </Text>
+
+                            <FlatList
+                                data={data}
+                                keyExtractor={(item) => item.id}
+                                numColumns={3}
+                                renderItem={({ item }) => (
+
+                                    <View style={tw`p-5`}>
+                                        <TouchableOpacity style={item.bgColor} style={tw`items-center justify-center  rounded-full w-16 h-16 bg-blue-400`}>
+                                            <FontAwesome5 name={item.icon} size={24} color="black" />
+                                        </TouchableOpacity>
+                                        <Text style={tw`uppercase text-center`}>{item.title}</Text>
+                                    </View>
+
+                                )}
+
+                            />
+
+
+                        </View>
+
+                    </View>
+
+                </View>
             </View>
-            <View style={tw`mx-5`}>
-            <TouchableOpacity style={tw`items-center justify-center  rounded-full w-16 h-16 bg-pink-300`}>
-                  <FontAwesome5 name="user-friends" size={24} color="black"/>
-              </TouchableOpacity>
-              <Text style={tw`uppercase text-center`}>dine</Text>
-            </View>
-            </View>
-        </SafeAreaView>
         </>
     )
 }
-
 export default Home
 
 const styles = StyleSheet.create({
+
+    horizantalline: {
+        width: 30,
+        height: 5,
+        backgroundColor: 'gray',
+        flex: 0,
+        alignItems: 'center',
+
+    },
 
 })
