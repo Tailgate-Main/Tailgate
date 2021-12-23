@@ -6,6 +6,7 @@ import { FontAwesome5, Entypo } from '@expo/vector-icons';
 import Map from '../../components/Map';
 import Item from 'antd/lib/list/Item';
 import { FlatList } from 'react-native-gesture-handler';
+
 const Home = () => {
     return (
         <>
