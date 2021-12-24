@@ -1,11 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Signup from './screens/auth/Signup';
 import Login from './screens/auth/Login';
 import Home from './screens/main/Home';
+import ReadyToGo from './screens/main/ReadyToGo';
+
 
 function SignupScreen({ navigation }) {
   return (
@@ -31,11 +32,14 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{
-        headerShown: false
-      }} initialRouteName="signup">
+        // headerShown: false
+      }} initialRouteName="readyToGo">
         <Stack.Screen name="signup" component={SignupScreen} />
         <Stack.Screen name="login" component={LoginScreen} />
         <Stack.Screen name="home" component={HomeScreen} />
+        <Stack.Screen name="readyToGo" component={ReadyToGo}
+          
+     />
       </Stack.Navigator>
     </NavigationContainer>
   );

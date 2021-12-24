@@ -1,120 +1,87 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { View, Text, SafeAreaView, StyleSheet } from 'react-native'
-import MapView from 'react-native-maps';
+import React from 'react'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import tw from 'tailwind-react-native-classnames'
-import * as Permissions from 'expo-permissions';
-import * as Location from 'expo-location';
+import { FontAwesome5, Entypo } from '@expo/vector-icons';
+import Map from '../../components/Map';
+import Item from 'antd/lib/list/Item';
+import { FlatList } from 'react-native-gesture-handler';
 
 const Home = () => {
+    const data = [
+        { id: 1, bgColor: "bg-yellow-400", icon: "plus" },
+        { id: 2, title: "bbq", bgColor: "bg-blue-400", icon: "user-friends" },
+        { id: 3, title: "kpc", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 4, title: "mfc", bgColor: "bg-blue-400", icon: "user-friends" },
+        { id: 5, title: "jhg", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 6, title: "ddq", bgColor: "bg-blue-400", icon: "user-friends" },
+        { id: 7, title: "uiy", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 8, title: "ddg", bgColor: "bg-blue-400", icon: "user-friends" },
+        { id: 9, title: "red", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 10, title: "der", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 11, title: "opt", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 12, title: "qwe", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 13, title: "ere", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 14, title: "pos", bgColor: "bg-pink-300", icon: "user-friends" },
+        { id: 15, title: "kpl", bgColor: "bg-pink-300", icon: "user-friends" },
 
-    const [lng, setLng] = useState(0);
-    const [lat, setLat] = useState(0);
 
-    const mapRef = useRef()
-
-    const [errorMessage, setErrorMessage] = useState("")
-
-    const [initialRegion, setInitialRegion] = useState({
-        latitude: 30,
-        longitude: -122,
-        longitudeDelta: 5,
-        latitudeDelta: 5
-    })
-
-    // useEffect(() => {
-    //     async function func() {
-    //         if (!checkPermission()) {
-    //         } else {
-    //             var coords = await getUserLocation()
-    //             setLat(coords.latitude)
-    //             setLng(coords.longitude)
-    //             setInitialRegion({
-    //                 latitude: coords.latitude,
-    //                 longitude: coords.longitude,
-    //                 longitudeDelta: 0.0421,
-    //                 latitudeDelta: 0.0922
-    //             })
-    //         }
-    //     }
-    //     func()
-
-    // }, [])
-
-    useEffect(() => {
-        // (async () => {
-        //     let { status } = await Location.requestForegroundPermissionsAsync();
-        //     if (status !== 'granted') {
-        //         setErrorMsg('Permission to access location was denied');
-        //         return;
-        //     }
-
-        //     let location = await Location.getCurrentPositionAsync({});
-        //     //   setLocation(location);
-        //     console.log(location);
-        //     setLng(location.coords.longitude)
-        //     setLat(location.coords.latitude)
-        //     var latIn = location.coords.latitude
-        //     var lngIn = location.coords.longitude
-        //     setInitialRegion({
-        //         latitude: location.coords.latitude,
-        //         longitude: location.coords.longitude,
-        //         longitudeDelta: 1,
-        //         latitudeDelta: 1
-        //     })
-        //     mapRef.current.animateToRegion({
-        //         latIn,
-        //         lngIn,
-        //         latitudeDelta: 1,
-        //         longitudeDelta: 1
-        //     })
-        // })();
-    }, []);
-
-    const checkPermission = async () => {
-        const hasPermission = await Location.requestBackgroundPermissionsAsync();
-        if (hasPermission.status !== 'granted') {
-            const permission = await askPermission();
-            return permission;
-        }
-        return false;
-    };
-    const askPermission = async () => {
-        const permission = await Location.getBackgroundPermissionsAsync();
-        return permission.status === 'granted';
-    };
-
-    const getUserLocation = async () => {
-        console.log('WE GOT HERERE')
-        const userLocation = await Location.getCurrentPositionAsync();
-        console.log(userLocation.coords)
-        return userLocation.coords;
-    }
-
+    ]
     return (
-        <View style={tw`relative flex-1 justify-between bg-black`}>
-            <MapView
-                style={StyleSheet.absoluteFillObject}
-                provider={MapView.PROVIDER_GOOGLE}
-                initialRegion={initialRegion}
-                ref={mapRef}
-            >
+        <>
+            <View>
+                <View style={tw`h-1/2`}>
+                    <Map />
+                </View>
+                <View style={tw`h-1/2 rounded-full`}>
+                    <View style={[tw`bg-white h-full `]}>
 
-            </MapView>
-            <View></View>
-            <View style={tw``}>
-                {/* <Text>{lat}</Text>
-                <Text>{lng}</Text> */}
-                <View style={tw`bg-white h-80`}>
-                    <View style={tw`flex justify-center bg-blue-400`}>
-                        <View style={tw`w-20 h-1 rounded-full bg-gray-400`}></View>
+
+                        <View style={tw`mt-4 flex mx-auto w-20 rounded-full`}>
+                            <View style={tw` h-1 rounded-full bg-gray-400`}></View>
+
+                        </View>
+                        <View style={tw`p-4`}>
+                            <Text style={tw`font-semibold text-3xl mb-4`}> Groups </Text>
+
+                            <FlatList
+                                data={data}
+                                keyExtractor={(item) => item.id}
+                                numColumns={3}
+                                renderItem={({ item }) => (
+
+                                    <View style={tw`p-5`}>
+                                        <TouchableOpacity style={item.bgColor} style={tw`items-center justify-center  rounded-full w-16 h-16 bg-blue-400`}>
+                                            <FontAwesome5 name={item.icon} size={24} color="black" />
+                                        </TouchableOpacity>
+                                        <Text style={tw`uppercase text-center`}>{item.title}</Text>
+                                    </View>
+
+                                )}
+
+                            />
+
+
+                        </View>
 
                     </View>
 
                 </View>
             </View>
-
-        </View>
+        </>
     )
 }
-
 export default Home
+
+const styles = StyleSheet.create({
+
+    horizantalline: {
+        width: 30,
+        height: 5,
+        backgroundColor: 'gray',
+        flex: 0,
+        alignItems: 'center',
+
+    },
+
+})
