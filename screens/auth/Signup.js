@@ -29,19 +29,22 @@ const Signup = ({ navigation }) => {
         }
 
         Google.logInAsync(config)
-            .then((result) => {
+            .then(async (result) => {
                 const { type, user } = result
-                console.log()
                 if (type === "success") {
-                    console.log(result)
                     const { idToken, accessToken } = result;
-                    console.log("EHRERER")
                     const credential = firebase.auth.GoogleAuthProvider
                     .credential(idToken, accessToken);
-                    console.log("WEIUWEIUGEFIG")
                     firebase.auth().signInWithCredential(credential)
-                        .then(res => {
+                        .then(async (res) => {
                             // user res, create your user, do whatever you want
+                            await db.collection("users").doc(res.user.uid).set(
+                            {
+                                userId: res.user.uid,
+                                userName: res.user.displayName,
+                                userEmail: res.user.email
+                            })
+                            navigation.navigate("home")
                         })
                         .catch(error => {
                             console.log("firebase cred err:", error);

@@ -10,7 +10,6 @@ const Login = ({ navigation }) => {
 
     const handleLogin = async () => {
         await auth.signInWithEmailAndPassword(email, password)
-        console.log("HELLOOOOOOOO")
         navigation.navigate("home")
     }
 
@@ -24,12 +23,12 @@ const Login = ({ navigation }) => {
         Google.logInAsync(config)
         .then((result) => {
             const {type, user} = result
-            console.log()
             if(type === "success"){
                 const {email, name, photoUrl} = user
                 alert("Sign in successful!")
                 alert(email)
                 alert(photoUrl)
+                navigation.navigate("home")
             }else{
                 alert("Sign in not successful")
             }
