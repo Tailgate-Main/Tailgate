@@ -38,7 +38,7 @@ const Signup = ({ navigation }) => {
                     firebase.auth().signInWithCredential(credential)
                         .then(async (res) => {
                             // user res, create your user, do whatever you want
-                            await db.collection("users").doc(res.user.uid).set(
+                            await db.collection("users").doc(res.user.email).set(
                             {
                                 userId: res.user.uid,
                                 userName: res.user.displayName,
@@ -93,7 +93,7 @@ const Signup = ({ navigation }) => {
                     <TouchableOpacity style={[tw`flex flex-row p-2.5 bg-white rounded-xl w-80 mt-2 border-2 border-black justify-between px-14`]} onPress={() => { handleGoogleSignup() }}>
                         <Image source={require('../../assets/login_Img/google.png')} />
                         <Text style={[tw`text-black text-lg`]}>
-                            Sign in with Google
+                            Sign up with Google
                         </Text>                        
                     </TouchableOpacity>
                 </View>

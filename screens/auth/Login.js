@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, SafeAreaView, KeyboardAvoidingView, TouchableOpacity, TextInput, Image } from 'react-native'
-import { auth } from '../../config/firebaseConfig';
+import { db, auth } from '../../config/firebaseConfig';
 import tw from "tailwind-react-native-classnames"
 import * as Google from "expo-google-app-auth"
+import firebase from 'firebase';
 
 const Login = ({ navigation }) => {
     const [email, setEmail] = useState("");
@@ -21,22 +22,34 @@ const Login = ({ navigation }) => {
         }
 
         Google.logInAsync(config)
-        .then((result) => {
-            const {type, user} = result
-            if(type === "success"){
-                const {email, name, photoUrl} = user
-                alert("Sign in successful!")
-                alert(email)
-                alert(photoUrl)
-                navigation.navigate("home")
-            }else{
-                alert("Sign in not successful")
-            }
-        })
-        .catch((error) => {
-            console.log(error)
-            alert("AN ERROR OCCURRED")
-        })
+            .then((result) => {
+                const { type, user } = result
+                const { idToken, accessToken } = result;
+                if (type === "success") {
+                    const { email, name, photoUrl } = user
+                    const credential = firebase.auth.GoogleAuthProvider
+                        .credential(idToken, accessToken);
+                    firebase.auth().signInWithCredential(credential)
+                        .then(async (res) => {
+                            // user res, create your user, do whatever you want
+                            await db.collection("users").doc(res.user.email).set(
+                                {
+                                    userId: res.user.uid,
+                                    userName: res.user.displayName,
+                                    userEmail: res.user.email
+                                })
+                            navigation.navigate("home")
+                        })
+                    alert(email)
+                    navigation.navigate("home")
+                } else {
+                    alert("Sign in not successful")
+                }
+            })
+            .catch((error) => {
+                console.log(error)
+                alert("AN ERROR OCCURRED")
+            })
     }
 
     return (
