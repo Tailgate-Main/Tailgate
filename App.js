@@ -34,9 +34,9 @@ function ReadyToGoScreen({ navigation, route }) {
   );
 }
 
-function NavigationScreen({ navigation }) {
+function NavigationScreen({ navigation, route }) {
   return (
-    <Navigation navigation={navigation} />
+    <Navigation navigation={navigation} route={route}/>
   );
 }
 

@@ -5,7 +5,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import Map from '../../components/Map';
 import { FlatList } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { auth, db } from '../../config/firebaseConfig';
 import { ActivityIndicator, Modal } from 'react-native';
 
@@ -69,7 +69,7 @@ const Home = ({ navigation }) => {
                     <View style={tw`w-full h-full`}>
                         <View style={tw`flex-1 content-center justify-center items-center`}>
                             <View style={styles.activityIndicatorWrapper}>
-                                <ActivityIndicator color="#000" animating={loading} />
+                                <ActivityIndicator color="#000" animating={loading} size="large"/>
                             </View>
                         </View>
                     </View>
@@ -80,7 +80,7 @@ const Home = ({ navigation }) => {
                             <MapView
                                 ref={mapRef}
                                 style={tw`flex-1`}
-                                provider="google"
+                                provider={PROVIDER_GOOGLE}
                             >
                                 {
                                     startCoords &&
@@ -116,7 +116,6 @@ const Home = ({ navigation }) => {
                                                                         groupId: item.groupId,
                                                                         groupOwner: item.groupOwner === auth.currentUser.uid,
                                                                         userCoords: startCoords,
-                                                                        mapCoords: mapCoords
                                                                     })
                                                                 }}>
                                                                 <FontAwesome5 name="user-friends" size={24} color="black" />
