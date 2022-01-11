@@ -29,19 +29,22 @@ const Signup = ({ navigation }) => {
         }
 
         Google.logInAsync(config)
-            .then((result) => {
+            .then(async (result) => {
                 const { type, user } = result
-                console.log()
                 if (type === "success") {
-                    console.log(result)
                     const { idToken, accessToken } = result;
-                    console.log("EHRERER")
                     const credential = firebase.auth.GoogleAuthProvider
                     .credential(idToken, accessToken);
-                    console.log("WEIUWEIUGEFIG")
                     firebase.auth().signInWithCredential(credential)
-                        .then(res => {
+                        .then(async (res) => {
                             // user res, create your user, do whatever you want
+                            await db.collection("users").doc(res.user.email).set(
+                            {
+                                userId: res.user.uid,
+                                userName: res.user.displayName,
+                                userEmail: res.user.email
+                            })
+                            navigation.navigate("home")
                         })
                         .catch(error => {
                             console.log("firebase cred err:", error);
@@ -87,11 +90,11 @@ const Signup = ({ navigation }) => {
                             <Text style={[tw`mr-2 text-lg text-blue-600`]}>Login here!</Text>
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={[tw`flex flex-row justify-around p-2.5 bg-white rounded-xl w-60 mt-2 border-2 border-black`]} onPress={() => { handleGoogleSignup() }}>
+                    <TouchableOpacity style={[tw`flex flex-row p-2.5 bg-white rounded-xl w-80 mt-2 border-2 border-black justify-between px-14`]} onPress={() => { handleGoogleSignup() }}>
                         <Image source={require('../../assets/login_Img/google.png')} />
                         <Text style={[tw`text-black text-lg`]}>
-                            Sign in with Google
-                        </Text>
+                            Sign up with Google
+                        </Text>                        
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
