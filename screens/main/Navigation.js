@@ -16,6 +16,10 @@ const Navigation = ({ navigation, route }) => {
     const [goingToCoords, setGoingToCoords] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
 
+    const [inNavigation, setInNavigation] = useState(true)
+
+    const locationUnsubscribe = useRef()
+
     useEffect(() => {
         console.log("HERERERERERER")
         setGroupUserStartPoints(route.params.groupUserStartPoints)
@@ -35,7 +39,7 @@ const Navigation = ({ navigation, route }) => {
                 edgePadding: {
                     bottom: 200,
                     right: 50,
-                    top: 50,
+                    top: 100,
                     left: 50,
                 },
                 animated: true,
@@ -44,31 +48,88 @@ const Navigation = ({ navigation, route }) => {
 
     }, [groupUserStartPoints])
 
-    const goBack = async () => {
-        if (route.params.groupOwner) {
-            console.log("WEIFUGWEIFLUGWEILFUGWILEYFIFLWGEYFYEL")
-            setIsLoading(true)
-            db.collection("groups").doc(route.params.groupId).set({
-                inNavigation: false
-            }, {
-                merge: true
+    useEffect(() => {
+        if(inNavigation){
+            getLocation()
+            getGroupStartCoords()
+        }else{
+            locationUnsubscribe.current()
+        }
+    }, [inNavigation])
+
+    const getLocation = () => {
+        locationUnsubscribe.current = db.collection("groups").doc(route.params.groupId).onSnapshot(snapshot => {
+            console.log("UHUHUH")
+            console.log(snapshot.data().goingTolatitude)
+            if (snapshot.data().goingTolatitude !== undefined) {
+                if (snapshot.data().goingTolatitude != "") {
+                    setGoingToCoords({
+                        latitude: parseFloat(snapshot.data().goingTolatitude),
+                        longitude: parseFloat(snapshot.data().goingTolongitude)
+                    })
+                }else{
+                    setGoingToCoords(null)
+                }
+            } else {
+                setGoingToCoords(null)
+            }
+        })
+    }
+
+    const getGroupStartCoords = () => {
+        db.collection("accepted").where("groupId", "==", route.params.groupId).onSnapshot(snapshot => {
+            var tempArr = []
+            snapshot.docs.forEach((doc) => {
+                if (doc.data().ready) {
+                    var coordsForDoc = {
+                        latitude: parseFloat(doc.data().latitude),
+                        longitude: parseFloat(doc.data().longitude),
+                        userId: doc.data().userId
+                    }
+                    tempArr.push(coordsForDoc)
+                }
             })
-            groupUserStartPoints.forEach((marker) => {
-                db.collection("accepter").doc(marker.userId + "-" + route.params.groupId).set({
+            setGroupUserStartPoints(tempArr)
+        })
+    }
+
+    const goBack = async () => {
+        setIsLoading(true)
+        setTimeout(() => {
+            if (route.params.groupOwner) {
+                console.log("WEIFUGWEIFLUGWEILFUGWILEYFIFLWGEYFYEL")
+                setIsLoading(true)
+                groupUserStartPoints.forEach((marker) => {
+                    console.log("MARKER")
+                    console.log(marker)
+                    db.collection("accepted").doc(marker.userId + "-" + route.params.groupId).set({
+                        ready: false
+                    }, {
+                        merge: true
+                    })
+                })
+                db.collection("groups").doc(route.params.groupId).set({
+                    goingTolatitude: "",
+                    goingTolongitude: "",
+                    inNavigation: false
+                }, {
+                    merge: true
+                })
+            } else {
+                db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
                     ready: false
                 }, {
                     merge: true
                 })
+            }
+            setIsLoading(false)
+            navigation.navigate("readyToGo", {
+                groupId: route.params.groupId,
+                groupOwner: route.params.groupOwner,
+                userCoords: route.params.userCoords,
+                groupName: route.params.groupName
             })
-            db.collection("accepted").where("groupId", "==", route.params.groupId)
-        }
-        setIsLoading(false)
-        navigation.navigate("readyToGo", {
-            groupId: route.params.groupId,
-            groupOwner: route.params.groupOwner,
-            userCoords: route.params.userCoords,
-            groupName: route.params.groupName
-        })
+        }, 1000)
     }
 
     return (
@@ -116,6 +177,7 @@ const Navigation = ({ navigation, route }) => {
                                     apikey='AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak'
                                     strokeWidth={3}
                                     strokeColor='black'
+                                    lineDashPattern={[0]}
                                     onError={() => {
                                         try {
                                             console.log("HERERE???????")
@@ -134,7 +196,7 @@ const Navigation = ({ navigation, route }) => {
             </View>
             <View style={tw`absolute flex justify-between h-full w-full flex-1`} pointerEvents='box-none'>
                 <View></View>
-                <View style={tw`bg-white pb-8 pt-6 pl-8 pr-8 rounded-3xl`}>
+                <View style={tw`bg-white pb-8 pt-6 pl-8 pr-8 rounded-t-3xl`}>
                     <View>
                         <Text style={tw`text-center text-2xl font-bold mb-1`}>BBQ</Text>
                     </View>
@@ -146,14 +208,14 @@ const Navigation = ({ navigation, route }) => {
                         <View>
                             {
                                 !isLoading ?
-                                    <TouchableOpacity style={tw`bg-red-500 rounded-2xl h-16 w-24 items-center flex justify-center`} onPress={() => {
+                                    <TouchableOpacity style={tw`bg-yellow-400 rounded-2xl h-16 w-24 items-center flex justify-center`} onPress={() => {
                                         goBack()
                                     }}>
                                         <Text style={tw`text-2xl text-white`}>Quit</Text>
                                     </TouchableOpacity>
                                     :
-                                    <View style={tw`bg-red-500 rounded-2xl h-16 w-24 justify-center items-center`}>
-                                        <ActivityIndicator animating={isLoading} color="#fff"/>
+                                    <View style={tw`bg-yellow-400 rounded-2xl h-16 w-24 justify-center items-center`}>
+                                        <ActivityIndicator animating={isLoading} color="#fff" />
                                     </View>
                             }
 

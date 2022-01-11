@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, SafeAreaView, Platform, StatusBar } from 'react-native'
 import tw from 'tailwind-react-native-classnames'
 import { FontAwesome5 } from '@expo/vector-icons';
 import Map from '../../components/Map';
@@ -17,9 +17,13 @@ const Home = ({ navigation }) => {
     const [loading, setLoading] = useState(true)
     const [mapCoords, setMapCoords] = useState(null)
 
+    let groupsUnsubscribe = null
+
     useEffect(() => {
+        if (Platform.OS === "android") {
+            StatusBar.setBackgroundColor('#FF573300');
+        }
         (async () => {
-            loadData()
             setLoading(true)
             console.log("GOT HERE")
             let { status } = await Location.requestForegroundPermissionsAsync();
@@ -40,10 +44,23 @@ const Home = ({ navigation }) => {
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude
             }
+            // loadData()
             setLoading(false)
             mapRef.current.animateCamera({ center: coords, pitch: 0, heading: 0, altitude: 0, zoom: 18 }, 1000)
             setMapCoords(coords)
             setStartCoords(other);
+
+            groupsUnsubscribe = db.collection("accepted").where("userId", "==", auth.currentUser.uid).onSnapshot(snapshot => {
+                let tempArr = [{
+                    userId: 1,
+                    groupId: 1,
+                    groupName: 1
+                }]
+                snapshot.docs.forEach((doc) => {
+                    tempArr.push(doc.data())
+                })
+                setData(tempArr)
+            })
 
         })();
     }, []);
@@ -54,12 +71,19 @@ const Home = ({ navigation }) => {
         groupName: 1
     }])
 
-    const loadData = async () => {
-        console.log(auth.currentUser.uid)
-        const all = await db.collection("accepted").where("userId", "==", auth.currentUser.uid).get()
-        all.docs.forEach((doc) => {
-            setData(oldArray => [...oldArray, doc.data()]);
-        })
+    // const loadData = async () => {
+    //     console.log(auth.currentUser.uid)
+    //     const all = await db.collection("accepted").where("userId", "==", auth.currentUser.uid).get()
+    //     all.docs.forEach((doc) => {
+    //         setData(oldArray => [...oldArray, doc.data()]);
+    //     })
+    // }
+
+    const navigateToRequests = () => {
+        if(groupsUnsubscribe != null){
+            groupsUnsubscribe()
+        }
+        navigation.navigate("requests")
     }
 
     return (
@@ -69,7 +93,7 @@ const Home = ({ navigation }) => {
                     <View style={tw`w-full h-full`}>
                         <View style={tw`flex-1 content-center justify-center items-center`}>
                             <View style={styles.activityIndicatorWrapper}>
-                                <ActivityIndicator color="#000" animating={loading} size="large"/>
+                                <ActivityIndicator color="#000" animating={loading} />
                             </View>
                         </View>
                     </View>
@@ -92,8 +116,13 @@ const Home = ({ navigation }) => {
                             </MapView>
                         </View>
                         <View style={tw`absolute w-full h-full flex justify-between flex-1`} pointerEvents='box-none'>
-                            <View />
-                            <View style={tw`h-2/5 rounded-3xl bg-white w-full`}>
+                            <SafeAreaView style={tw`flex-row justify-between mx-4 ${Platform.OS === "android" && "mt-2"}`}>
+                                <View></View>
+                                <TouchableOpacity style={tw`bg-yellow-400 p-2 rounded-full`} onPress={() => { navigateToRequests() }}>
+                                    <FontAwesome5 name="bell" size={24} color="black" />
+                                </TouchableOpacity>
+                            </SafeAreaView>
+                            <View style={tw`h-2/5 rounded-t-3xl bg-white w-full`}>
                                 <View style={tw`flex-1`}>
                                     <Text style={tw`font-semibold text-3xl mb-2 mt-4 text-center`}>Groups</Text>
 
@@ -108,9 +137,12 @@ const Home = ({ navigation }) => {
                                             <View style={tw`p-3`}>
                                                 {
                                                     item.groupId !== 1 ?
-                                                        <View>
-                                                            <TouchableOpacity style={tw`items-center justify-center  rounded-full w-16 h-16 bg-red-400 mb-1`}
+                                                        <View style={tw`flex items-center`}>
+                                                            <TouchableOpacity style={tw`items-center justify-center rounded-full w-16 h-16 bg-red-400 mb-1`}
                                                                 onPress={() => {
+                                                                    if(groupsUnsubscribe != null){
+                                                                        groupsUnsubscribe()
+                                                                    }
                                                                     navigation.navigate("readyToGo", {
                                                                         groupName: item.groupName,
                                                                         groupId: item.groupId,
@@ -120,12 +152,17 @@ const Home = ({ navigation }) => {
                                                                 }}>
                                                                 <FontAwesome5 name="user-friends" size={24} color="black" />
                                                             </TouchableOpacity>
-                                                            <Text style={tw`uppercase text-center`}>{item.groupName}</Text>
+                                                            <Text style={tw`uppercase text-center`}>{item.groupName.slice(0, 5)}</Text>
                                                         </View>
                                                         :
                                                         <View>
                                                             <TouchableOpacity style={tw`items-center justify-center  rounded-full w-16 h-16 bg-yellow-400`}
-                                                                onPress={() => { navigation.navigate("addToGroup") }}>
+                                                                onPress={() => {
+                                                                    if(groupsUnsubscribe != null){
+                                                                        groupsUnsubscribe()
+                                                                    }
+                                                                    navigation.navigate("add")
+                                                                }}>
                                                                 <FontAwesome5 name="plus" size={24} color="black" />
                                                             </TouchableOpacity>
                                                         </View>
@@ -165,6 +202,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    AndroidSafeArea: {
+        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+    }
 });
 
 export default Home

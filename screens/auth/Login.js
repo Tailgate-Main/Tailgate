@@ -8,6 +8,16 @@ import firebase from 'firebase';
 const Login = ({ navigation }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("")
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        return firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            navigation.navigate("home")
+          }
+          setLoading(false);
+        });
+      }, []);
 
     const handleLogin = async () => {
         await auth.signInWithEmailAndPassword(email, password)
@@ -57,24 +67,11 @@ const Login = ({ navigation }) => {
             <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={tw`flex-1`}>
                 <View style={[tw`m-auto flex items-center`]}>
-                    <Text style={[tw`text-black text-3xl font-bold mb-10`]}>TAILGATE</Text>
-                    <TextInput
-                        style={[tw`bg-white border-2 border-black rounded-xl w-80 h-12 mb-4 pl-2 pr-2`]}
-                        placeholder="Email"
-                        onChangeText={(e) => { setEmail(e) }}
-                        value={email}
-                    />
-                    <TextInput
-                        style={[tw`bg-white border-2 border-black rounded-xl w-80 h-12 pl-2 pr-2 mb-4`]}
-                        placeholder="Password"
-                        onChangeText={(e) => { setPassword(e) }}
-                        value={password}
-                        secureTextEntry={true}
-
-                    />
-                    <TouchableOpacity style={[tw`flex items-center p-2.5 bg-black rounded-xl w-80 mb-2`]} onPress={() => { handleLogin() }}>
-                        <Text style={[tw`text-white text-lg`]}>
-                            Login
+                    <Text style={[tw`text-black text-3xl font-bold mb-6`]}>TAILGATE</Text>
+                    <TouchableOpacity style={[tw`flex flex-row p-2.5 bg-white rounded-xl w-80 border-2 border-black justify-between px-14 mb-2`]} onPress={() => { handleGoogleLogin() }}>
+                        <Image source={require('../../assets/login_Img/google.png')} />
+                        <Text style={[tw`text-black text-lg text-center`]}>
+                            Sign in with Google
                         </Text>
                     </TouchableOpacity>
                     <View style={[tw`flex flex-row`]}>
@@ -83,12 +80,6 @@ const Login = ({ navigation }) => {
                             <Text style={[tw`mr-2 text-lg text-blue-600`]}>Signup here!</Text>
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={[tw`flex flex-row p-2.5 bg-white rounded-xl w-80 mt-2 border-2 border-black justify-between px-14`]} onPress={() => { handleGoogleLogin() }}>
-                        <Image source={require('../../assets/login_Img/google.png')} />
-                        <Text style={[tw`text-black text-lg text-center`]}>
-                            Sign in with Google
-                        </Text>
-                    </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
 

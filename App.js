@@ -8,6 +8,7 @@ import Home from './screens/main/Home';
 import ReadyToGo from './screens/main/ReadyToGo';
 import Navigation from "./screens/main/Navigation"
 import AddGroup from './screens/main/AddGroup';
+import Requests from './screens/main/Requests';
 
 
 function SignupScreen({ navigation }) {
@@ -36,13 +37,19 @@ function ReadyToGoScreen({ navigation, route }) {
 
 function NavigationScreen({ navigation, route }) {
   return (
-    <Navigation navigation={navigation} route={route}/>
+    <Navigation navigation={navigation} route={route} />
   );
 }
 
-function AddGroupScreen({ navigation, route }){
+function AddGroupScreen({ navigation, route }) {
   return (
-    <AddGroup navigation={navigation} route={route}/>
+    <AddGroup navigation={navigation} route={route} />
+  )
+}
+
+function RequestsScreen({ navigation }) {
+  return (
+    <Requests navigation={navigation} />
   )
 }
 
@@ -54,12 +61,20 @@ export default function App() {
       <Stack.Navigator screenOptions={{
         headerShown: false
       }} initialRouteName="login">
-        <Stack.Screen name="signup" component={SignupScreen} />
-        <Stack.Screen name="login" component={LoginScreen} />
-        <Stack.Screen name="home" component={HomeScreen} />
-        <Stack.Screen name="readyToGo" component={ReadyToGoScreen} />
-        <Stack.Screen name="navigation" component={NavigationScreen} />
-        <Stack.Screen name="addToGroup" component={AddGroupScreen} />
+        <Stack.Screen name="signup" component={SignupScreen} options={{ gestureEnabled: false }}
+        />
+        <Stack.Screen name="login" component={LoginScreen} options={{ gestureEnabled: false }}
+        />
+        <Stack.Screen name="home" component={HomeScreen} options={{ gestureEnabled: false }}
+        />
+        <Stack.Screen name="readyToGo" component={ReadyToGoScreen} options={{ gestureEnabled: false }}
+        />
+        <Stack.Screen name="navigation" component={NavigationScreen} options={{ gestureEnabled: false }}
+        />
+        <Stack.Screen name="add" component={AddGroupScreen} options={{ gestureEnabled: false }}
+        />
+        <Stack.Screen name="requests" component={RequestsScreen} options={{ gestureEnabled: false }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
