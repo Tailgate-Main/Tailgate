@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { View, Text, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native'
 import { FontAwesome5 } from '@expo/vector-icons';
 import tw from 'tailwind-react-native-classnames';
@@ -7,31 +7,32 @@ import { auth, db } from '../../config/firebaseConfig';
 const Requests = ({ navigation }) => {
     const [requests, setRequests] = useState([])
 
-    let unsubscribe = null
+    let requestUnsubscribe = useRef()
 
     useEffect(() => {
         async function func() {
-            let tempArr = []
-            unsubscribe = db.collection("requests").where("userEmail", "==", auth.currentUser.email).onSnapshot(snapshot => {
-                tempArr = []
-                snapshot.docs.forEach(function (doc) {
-                    tempArr.push(doc.data())
-                });
-                setRequests(tempArr)
-            })
-            
+            getRequests()
         }
-
         func()
     }, [])
 
-    const acceptRequest = async (data, index) => {
+    const getRequests = () => {
+        let tempArr = []
+        requestUnsubscribe.current = db.collection("requests").where("userEmail", "==", auth.currentUser.email).onSnapshot(snapshot => {
+            tempArr = []
+            snapshot.docs.forEach(function (doc) {
+                tempArr.push(doc.data())
+            });
+            setRequests(tempArr)
+        })
+    }
+
+    const acceptRequest = async (data) => {
         let temp = []
         requests.map((val) => {
             temp.push(val)
         })
         const rand = await db.collection("requests").doc(auth.currentUser.email + "-" + data.groupId).get()
-        const owner = rand.data().groupOwner
         await db.collection("requests").doc(auth.currentUser.email + "-" + data.groupId).delete()
         setTimeout(async () => {
             await db.collection("accepted").doc(auth.currentUser.uid + "-" + data.groupId).set({
@@ -40,32 +41,30 @@ const Requests = ({ navigation }) => {
                 ready: false,
                 userId: auth.currentUser.uid,
                 userName: auth.currentUser.displayName,
-                groupOwner: owner
             })
         }, 500)
     }
 
-    const rejectRequest = async (data, index) => {
-        console.log("QIEUHAEILUHFEIULH")
-        console.log(data)
+    const rejectRequest = async (data) => {
         await db.collection("requests").doc(auth.currentUser.email + "-" + data.groupId).delete()
     }
 
     return (
-        <View style={"h-full bg-white"}>
-            <SafeAreaView style={tw`${Platform.OS === "android" && "mt-2"}`}>
-                <View style={tw`p-4`}>
-                    <View style={tw`flex-row items-center`}>
-                        <TouchableOpacity style={tw`rounded-full mr-4`} onPress={() => {
-                            if(unsubscribe != null){
-                                unsubscribe()
-                            }
-                            navigation.navigate("home")
-                        }}>
-                            <FontAwesome5 name="arrow-left" size={24} color="black" />
-                        </TouchableOpacity>
-                        <Text style={tw`text-3xl font-bold`}>Group Requests</Text>
-                    </View>
+        <SafeAreaView style={tw`${Platform.OS === "android" && "mt-2"}`}>
+            <View style={tw`p-4`}>
+                <View style={tw`flex-row items-center`}>
+                    <TouchableOpacity style={tw`rounded-full mr-4`} onPress={() => {
+                        if (requestUnsubscribe.current != undefined) {
+                            requestUnsubscribe.current()
+                        }
+                        navigation.navigate("home")
+                    }}>
+                        <FontAwesome5 name="arrow-left" size={24} color="black" />
+                    </TouchableOpacity>
+                    <Text style={tw`text-3xl font-bold`}>Group Requests</Text>
+                </View>
+                {
+                    requests.length !== 0 ?
                     <ScrollView style={tw`h-full mt-4`}>
                         {
                             requests.map((val, i) => {
@@ -78,12 +77,12 @@ const Requests = ({ navigation }) => {
 
                                         <View style={tw`flex-row items-center`}>
                                             <TouchableOpacity style={tw`flex-row bg-yellow-400 p-2 rounded-lg mr-2`} onPress={() => {
-                                                acceptRequest(val, i)
+                                                acceptRequest(val)
                                             }}>
                                                 <Text>Accept</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity style={tw`flex-row bg-black p-2 rounded-lg`} onPress={() => {
-                                                rejectRequest(val, i)
+                                                rejectRequest(val)
                                             }}>
                                                 <Text style={tw`text-yellow-400`}>Reject</Text>
                                             </TouchableOpacity>
@@ -93,9 +92,11 @@ const Requests = ({ navigation }) => {
                             })
                         }
                     </ScrollView>
-                </View>
-            </SafeAreaView>
-        </View>
+                    :
+                    <View style={tw``} />
+                }
+            </View>
+        </SafeAreaView>
     )
 }
 

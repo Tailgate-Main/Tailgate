@@ -15,19 +15,22 @@ const Navigation = ({ navigation, route }) => {
     const [groupUserStartPoints, setGroupUserStartPoints] = useState(null)
     const [goingToCoords, setGoingToCoords] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
+    const [locationAddress, setLocationAddress] = useState("")
 
     const [inNavigation, setInNavigation] = useState(true)
 
     const locationUnsubscribe = useRef()
+    const coordsUnsubscribe = useRef()
 
     useEffect(() => {
-        console.log("HERERERERERER")
+        console.log("WORKS HERE")
+        setLocationAddress(route.params.locationAddress)
         setGroupUserStartPoints(route.params.groupUserStartPoints)
         setGoingToCoords(route.params.goingToCoords)
     }, [])
 
     useEffect(() => {
-        console.log(groupUserStartPoints)
+        console.log("GROUPUSERSTARTPOINTS")
         if (groupUserStartPoints != null) {
             let goingToTemp = goingToCoords
             let tempArr = []
@@ -49,35 +52,44 @@ const Navigation = ({ navigation, route }) => {
     }, [groupUserStartPoints])
 
     useEffect(() => {
-        if(inNavigation){
+        console.log("INNAVIGATION")
+        if (inNavigation) {
             getLocation()
             getGroupStartCoords()
-        }else{
-            locationUnsubscribe.current()
+        } else {
+            if (locationUnsubscribe.current != undefined) {
+                locationUnsubscribe.current()
+            }
+            if (coordsUnsubscribe.current != undefined) {
+                coordsUnsubscribe.current()
+            }
         }
     }, [inNavigation])
 
     const getLocation = () => {
         locationUnsubscribe.current = db.collection("groups").doc(route.params.groupId).onSnapshot(snapshot => {
-            console.log("UHUHUH")
-            console.log(snapshot.data().goingTolatitude)
+            console.log("LOCATION UNSUB")
+            setLocationAddress(snapshot.data().locationAddress)
             if (snapshot.data().goingTolatitude !== undefined) {
                 if (snapshot.data().goingTolatitude != "") {
                     setGoingToCoords({
                         latitude: parseFloat(snapshot.data().goingTolatitude),
                         longitude: parseFloat(snapshot.data().goingTolongitude)
                     })
-                }else{
+                } else {
                     setGoingToCoords(null)
+                    setInNavigation(false)
                 }
             } else {
                 setGoingToCoords(null)
+                setInNavigation(false)
             }
         })
     }
 
     const getGroupStartCoords = () => {
-        db.collection("accepted").where("groupId", "==", route.params.groupId).onSnapshot(snapshot => {
+        coordsUnsubscribe.current = db.collection("accepted").where("groupId", "==", route.params.groupId).onSnapshot(snapshot => {
+            console.log("GROUP UNSUB")
             var tempArr = []
             snapshot.docs.forEach((doc) => {
                 if (doc.data().ready) {
@@ -95,41 +107,47 @@ const Navigation = ({ navigation, route }) => {
 
     const goBack = async () => {
         setIsLoading(true)
-        setTimeout(() => {
-            if (route.params.groupOwner) {
-                console.log("WEIFUGWEIFLUGWEILFUGWILEYFIFLWGEYFYEL")
-                setIsLoading(true)
-                groupUserStartPoints.forEach((marker) => {
-                    console.log("MARKER")
-                    console.log(marker)
-                    db.collection("accepted").doc(marker.userId + "-" + route.params.groupId).set({
-                        ready: false
-                    }, {
-                        merge: true
-                    })
-                })
-                db.collection("groups").doc(route.params.groupId).set({
-                    goingTolatitude: "",
-                    goingTolongitude: "",
-                    inNavigation: false
-                }, {
-                    merge: true
-                })
-            } else {
-                db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
+        if (locationUnsubscribe.current != undefined) {
+            locationUnsubscribe.current()
+        }
+        if (coordsUnsubscribe.current != undefined) {
+            coordsUnsubscribe.current()
+        }
+
+        if (route.params.groupOwner) {
+            setIsLoading(true)
+            await groupUserStartPoints.forEach((marker) => {
+                db.collection("accepted").doc(marker.userId + "-" + route.params.groupId).set({
                     ready: false
                 }, {
                     merge: true
                 })
-            }
+            })
+            await db.collection("groups").doc(route.params.groupId).set({
+                goingTolatitude: "",
+                goingTolongitude: "",
+                inNavigation: false,
+                locationAddress: ""
+            }, {
+                merge: true
+            })
+        } else {
+            await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
+                ready: false
+            }, {
+                merge: true
+            })
+        }
+        setTimeout(() => {
             setIsLoading(false)
+            console.log(route.params.userCoords)
             navigation.navigate("readyToGo", {
                 groupId: route.params.groupId,
                 groupOwner: route.params.groupOwner,
                 userCoords: route.params.userCoords,
                 groupName: route.params.groupName
             })
-        }, 1000)
+        }, 500)
     }
 
     return (
@@ -178,14 +196,6 @@ const Navigation = ({ navigation, route }) => {
                                     strokeWidth={3}
                                     strokeColor='black'
                                     lineDashPattern={[0]}
-                                    onError={() => {
-                                        try {
-                                            console.log("HERERE???????")
-                                        } catch (error) {
-                                            console.log("HIIIII")
-                                            console.log(error)
-                                        }
-                                    }}
                                 />
                             )
                         })
@@ -201,11 +211,10 @@ const Navigation = ({ navigation, route }) => {
                         <Text style={tw`text-center text-2xl font-bold mb-1`}>BBQ</Text>
                     </View>
                     <View style={tw`flex-row justify-between items-center`}>
-                        <View>
-                            <Text style={tw`text-lg font-semibold`}>Currently Navigating To:</Text>
-                            <Text style={tw`text-lg font-semibold`}>Schaumburg,Illinois</Text>
+                        <View style={tw`w-2/3`}>
+                            <Text style={tw`text-lg font-semibold`}>Currently Navigating To: {locationAddress}</Text>
                         </View>
-                        <View>
+                        <View style={tw``}>
                             {
                                 !isLoading ?
                                     <TouchableOpacity style={tw`bg-yellow-400 rounded-2xl h-16 w-24 items-center flex justify-center`} onPress={() => {
