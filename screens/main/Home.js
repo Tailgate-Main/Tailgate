@@ -17,7 +17,13 @@ const Home = ({ navigation }) => {
     const [loading, setLoading] = useState(true)
     const [mapCoords, setMapCoords] = useState(null)
 
-    let groupsUnsubscribe = null
+    const [data, setData] = useState([{
+        userId: 1,
+        groupId: 1,
+        groupName: 1
+    }])
+
+    const groupsUnsubscribe = useRef()
 
     useEffect(() => {
         if (Platform.OS === "android") {
@@ -38,7 +44,7 @@ const Home = ({ navigation }) => {
             console.log(location)
             let coords = {
                 latitude: location.coords.latitude - 0.0005,
-                longitude: location.coords.longitude + 0.0004
+                longitude: location.coords.longitude
             }
             let other = {
                 latitude: location.coords.latitude,
@@ -50,26 +56,34 @@ const Home = ({ navigation }) => {
             setMapCoords(coords)
             setStartCoords(other);
 
-            groupsUnsubscribe = db.collection("accepted").where("userId", "==", auth.currentUser.uid).onSnapshot(snapshot => {
-                let tempArr = [{
-                    userId: 1,
-                    groupId: 1,
-                    groupName: 1
-                }]
-                snapshot.docs.forEach((doc) => {
-                    tempArr.push(doc.data())
-                })
-                setData(tempArr)
-            })
+            getGroupData()
 
         })();
     }, []);
 
-    const [data, setData] = useState([{
-        userId: 1,
-        groupId: 1,
-        groupName: 1
-    }])
+    useEffect(() => {
+        async function func() {
+            getGroupData()
+        }
+        const unsubscribe = navigation.addListener('focus', () => {
+            func()
+        });
+        return unsubscribe;
+    }, [navigation]);
+
+    const getGroupData = () => {
+        groupsUnsubscribe.current = db.collection("accepted").where("userId", "==", auth.currentUser.uid).onSnapshot(snapshot => {
+            let tempArr = [{
+                userId: 1,
+                groupId: 1,
+                groupName: 1
+            }]
+            snapshot.docs.forEach((doc) => {
+                tempArr.push(doc.data())
+            })
+            setData(tempArr)
+        })
+    }
 
     // const loadData = async () => {
     //     console.log(auth.currentUser.uid)
@@ -80,8 +94,8 @@ const Home = ({ navigation }) => {
     // }
 
     const navigateToRequests = () => {
-        if(groupsUnsubscribe != null){
-            groupsUnsubscribe()
+        if(groupsUnsubscribe.current != undefined){
+            groupsUnsubscribe.current()
         }
         navigation.navigate("requests")
     }
@@ -140,8 +154,8 @@ const Home = ({ navigation }) => {
                                                         <View style={tw`flex items-center`}>
                                                             <TouchableOpacity style={tw`items-center justify-center rounded-full w-16 h-16 bg-red-400 mb-1`}
                                                                 onPress={() => {
-                                                                    if(groupsUnsubscribe != null){
-                                                                        groupsUnsubscribe()
+                                                                    if(groupsUnsubscribe.current != undefined){
+                                                                        groupsUnsubscribe.current()
                                                                     }
                                                                     navigation.navigate("readyToGo", {
                                                                         groupName: item.groupName,
@@ -158,8 +172,8 @@ const Home = ({ navigation }) => {
                                                         <View>
                                                             <TouchableOpacity style={tw`items-center justify-center  rounded-full w-16 h-16 bg-yellow-400`}
                                                                 onPress={() => {
-                                                                    if(groupsUnsubscribe != null){
-                                                                        groupsUnsubscribe()
+                                                                    if(groupsUnsubscribe.current != undefined){
+                                                                        groupsUnsubscribe.current()
                                                                     }
                                                                     navigation.navigate("add")
                                                                 }}>

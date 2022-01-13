@@ -12,12 +12,12 @@ const Login = ({ navigation }) => {
 
     useEffect(() => {
         return firebase.auth().onAuthStateChanged((user) => {
-          if (user) {
-            navigation.navigate("home")
-          }
-          setLoading(false);
+            if (user) {
+                navigation.navigate("home")
+            }
+            setLoading(false);
         });
-      }, []);
+    }, []);
 
     const handleLogin = async () => {
         await auth.signInWithEmailAndPassword(email, password)
@@ -48,10 +48,8 @@ const Login = ({ navigation }) => {
                                     userName: res.user.displayName,
                                     userEmail: res.user.email
                                 })
-                            navigation.navigate("home")
+                            alert(email)
                         })
-                    alert(email)
-                    navigation.navigate("home")
                 } else {
                     alert("Sign in not successful")
                 }

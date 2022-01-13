@@ -15,7 +15,8 @@ const db = firebase.firestore()
 
 db.settings({
     timestampsInSnapshots: true,
-    merge: true
+    merge: true,
+    experimentalForceLongPolling: true
 })
 
 const auth = firebaseApp.auth()

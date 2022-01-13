@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -9,74 +8,84 @@ import ReadyToGo from './screens/main/ReadyToGo';
 import Navigation from "./screens/main/Navigation"
 import AddGroup from './screens/main/AddGroup';
 import Requests from './screens/main/Requests';
-
+import { StatusBar } from 'react-native';
+import AddToGroup from './screens/main/AddToGroup';
 
 function SignupScreen({ navigation }) {
-  return (
-    <Signup navigation={navigation} />
-  );
+    return (
+        <Signup navigation={navigation} />
+    );
 }
 
 function LoginScreen({ navigation }) {
-  return (
-    <Login navigation={navigation} />
-  );
+    return (
+        <Login navigation={navigation} />
+    );
 }
 
 function HomeScreen({ navigation }) {
-  return (
-    <Home navigation={navigation} />
-  )
+    return (
+        <Home navigation={navigation} />
+    )
 }
 
 function ReadyToGoScreen({ navigation, route }) {
-  return (
-    <ReadyToGo navigation={navigation} route={route} />
-  );
+    return (
+        <ReadyToGo navigation={navigation} route={route} />
+    );
 }
 
 function NavigationScreen({ navigation, route }) {
-  return (
-    <Navigation navigation={navigation} route={route} />
-  );
+    return (
+        <Navigation navigation={navigation} route={route} />
+    );
 }
 
 function AddGroupScreen({ navigation, route }) {
-  return (
-    <AddGroup navigation={navigation} route={route} />
-  )
+    return (
+        <AddGroup navigation={navigation} route={route} />
+    )
 }
 
 function RequestsScreen({ navigation }) {
-  return (
-    <Requests navigation={navigation} />
-  )
+    return (
+        <Requests navigation={navigation} />
+    )
+}
+
+function AddToGroupScreen({ navigation, route }){
+    return (
+        <AddToGroup navigation={navigation} route={route}/>
+    )
 }
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  return (
-    <NavigationContainer independent={true}>
-      <Stack.Navigator screenOptions={{
-        headerShown: false
-      }} initialRouteName="login">
-        <Stack.Screen name="signup" component={SignupScreen} options={{ gestureEnabled: false }}
-        />
-        <Stack.Screen name="login" component={LoginScreen} options={{ gestureEnabled: false }}
-        />
-        <Stack.Screen name="home" component={HomeScreen} options={{ gestureEnabled: false }}
-        />
-        <Stack.Screen name="readyToGo" component={ReadyToGoScreen} options={{ gestureEnabled: false }}
-        />
-        <Stack.Screen name="navigation" component={NavigationScreen} options={{ gestureEnabled: false }}
-        />
-        <Stack.Screen name="add" component={AddGroupScreen} options={{ gestureEnabled: false }}
-        />
-        <Stack.Screen name="requests" component={RequestsScreen} options={{ gestureEnabled: false }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+    return (
+        <NavigationContainer independent={true}>
+            <StatusBar barStyle="dark-content" />
+            <Stack.Navigator screenOptions={{
+                headerShown: false
+            }} initialRouteName="login">
+                <Stack.Screen name="signup" component={SignupScreen} options={{ gestureEnabled: false }}
+                />
+                <Stack.Screen name="login" component={LoginScreen} options={{ gestureEnabled: false }}
+                />
+                <Stack.Screen name="home" component={HomeScreen} options={{ gestureEnabled: false }}
+                />
+                <Stack.Screen name="readyToGo" component={ReadyToGoScreen} options={{ gestureEnabled: false }}
+                />
+                <Stack.Screen name="navigation" component={NavigationScreen} options={{ gestureEnabled: false }}
+                />
+                <Stack.Screen name="add" component={AddGroupScreen} options={{ gestureEnabled: false }}
+                />
+                <Stack.Screen name="requests" component={RequestsScreen} options={{ gestureEnabled: false }}
+                />
+                <Stack.Screen name="addTo" component={AddToGroupScreen} options={{ gestureEnabled: false }}
+                />
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
 }
 
