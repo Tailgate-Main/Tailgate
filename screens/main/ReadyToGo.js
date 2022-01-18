@@ -1,16 +1,22 @@
 import React, { useEffect, useState, useRef, Component, Fragment } from 'react'
-import { Platform, StyleSheet, Text, TouchableOpacity, View, StatusBar, SafeAreaView } from 'react-native'
+import { Platform, StyleSheet, Text, TouchableOpacity, View, StatusBar, SafeAreaView, Image } from 'react-native'
 import tw from 'tailwind-react-native-classnames'
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import Map from '../../components/Map';
-import { FlatList, ScrollView } from 'react-native-gesture-handler';
+import { FlatList } from 'react-native-gesture-handler';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { auth, db } from '../../config/firebaseConfig';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Callout } from 'react-native-maps';
 import { ActivityIndicator } from 'react-native';
 import { PROVIDER_GOOGLE } from 'react-native-maps';
 import MapViewDirections from "react-native-maps-directions"
 import { FontAwesome5 } from '@expo/vector-icons';
+import axios from 'axios'
+import * as Location from 'expo-location';
+import car from "../../assets/cars/car.png"
+
+
+//TODO: Implement this url https://maps.googleapis.com/maps/api/distancematrix/json?origins=%2244.23,-120.2%22|%2244,-120%22&destinations=place_id:ChIJqVJ3OCm0D4gRc9S7toT7_IY&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak
 
 const ReadyToGo = ({ navigation, route }) => {
 
@@ -21,16 +27,18 @@ const ReadyToGo = ({ navigation, route }) => {
     const [groupUserStartPoints, setGroupUserStartPoints] = useState([])
     const [goingToCoords, setGoingToCoords] = useState(null)
     const [locationAddress, setLocationAddress] = useState("")
+    const [placeId, setPlaceId] = useState("")
+    const [initalPoints, setInitialPoints] = useState([])
 
     const locationUnsubscribe = useRef()
     const groupUnsubscribe = useRef()
     const coordsUnsubscribe = useRef()
     const navigationUnsubscribe = useRef()
-
+    const timeoutId = useRef()
+    const setInitial = useRef(false)
 
     useEffect(() => {
         async function func() {
-            console.log(route.params)
             getReady()
         }
         const unsubscribe = navigation.addListener('focus', () => {
@@ -44,30 +52,14 @@ const ReadyToGo = ({ navigation, route }) => {
     }, [navigation]);
 
     useEffect(() => {
-        console.log("HIIIIII")
         if (ready) {
-            console.log("TRIED THIS ACTUQLLY")
             getGroupStartCoords()
-            console.log("HERE??ERROR1")
             checkNavigation()
-            console.log("HERE??ERROR2")
             getGroup()
-            console.log("HERE??ERROR3")
             getLocation()
-            console.log("HERE??ERROR4")
+            updateInformation()
         } else {
-            console.log("HERERERR AS WELL")
-            console.log(locationUnsubscribe.current)
-            if (locationUnsubscribe.current != undefined) {
-                console.log("TRIED????")
-                locationUnsubscribe.current()
-            }
-            if (groupUnsubscribe.current != undefined) {
-                groupUnsubscribe.current()
-            }
-            if (coordsUnsubscribe.current != undefined) {
-                coordsUnsubscribe.current()
-            }
+            unsubscribeAll()
         }
     }, [ready])
 
@@ -81,9 +73,9 @@ const ReadyToGo = ({ navigation, route }) => {
             tempArr.push(goingToTemp)
             mapRef.current.fitToCoordinates(tempArr, {
                 edgePadding: {
-                    bottom: 200,
+                    bottom: 400,
                     right: 50,
-                    top: 50,
+                    top: 220,
                     left: 50,
                 },
                 animated: true,
@@ -92,9 +84,9 @@ const ReadyToGo = ({ navigation, route }) => {
             if (groupUserStartPoints.length !== 0) {
                 mapRef.current.fitToCoordinates(groupUserStartPoints, {
                     edgePadding: {
-                        bottom: 1,
+                        bottom: 200,
                         right: 1,
-                        top: 100,
+                        top: 200,
                         left: 1,
                     },
                     animated: true,
@@ -106,20 +98,70 @@ const ReadyToGo = ({ navigation, route }) => {
 
     }, [groupUserStartPoints, goingToCoords])
 
+    const unsubscribeAll = () => {
+        if (locationUnsubscribe.current != undefined) {
+            locationUnsubscribe.current()
+        }
+        if (groupUnsubscribe.current != undefined) {
+            groupUnsubscribe.current()
+        }
+        if (coordsUnsubscribe.current != undefined) {
+            coordsUnsubscribe.current()
+        }
+        if (timeoutId.current != undefined) {
+            clearTimeout(timeoutId.current)
+        }
+    }
+
+    const updateInformation = async () => {
+        let location = await Location.getCurrentPositionAsync();
+
+        axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="44.23,-120.2"&destinations=place_id:ChIJqVJ3OCm0D4gRc9S7toT7_IY&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
+        .then(async (response) => {
+            console.log('getting data from axios', await response.data.rows[0].elements[0].distance);
+            if(await response.data){
+                console.log("NOW HERE ACTUALLY 2")
+                await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
+                    latitude: location.coords.latitude,
+                    longitude: location.coords.longitude,
+                    eta: await response.data.rows[0].elements[0].duration.text,
+                    distance: await response.data.rows[0].elements[0].distance.text,
+                    heading: location.coords.heading
+                }, {
+                    merge: true
+                })
+            }
+
+        })
+        .catch(error => {
+            console.log(error);
+        });
+        timeoutId.current = setTimeout(() => {updateInformation()}, 20000)
+    }
+
     const getGroupStartCoords = () => {
+        setInitial.current = false
         coordsUnsubscribe.current = db.collection("accepted").where("groupId", "==", route.params.groupId).onSnapshot(snapshot => {
+            console.log("GROUP UNSUB")
             var tempArr = []
             snapshot.docs.forEach((doc) => {
                 if (doc.data().ready) {
                     var coordsForDoc = {
                         latitude: parseFloat(doc.data().latitude),
                         longitude: parseFloat(doc.data().longitude),
-                        userId: doc.data().userId
+                        userId: doc.data().userId,
+                        distance: doc.data().distance,
+                        name: doc.data().userName,
+                        heading: doc.data().heading
                     }
                     tempArr.push(coordsForDoc)
                 }
             })
             setGroupUserStartPoints(tempArr)
+            if (!setInitial.current) {
+                setInitial.current = true
+                setInitialPoints(tempArr)
+            }
         })
     }
 
@@ -161,9 +203,10 @@ const ReadyToGo = ({ navigation, route }) => {
                         groupId: route.params.groupId,
                         groupUserStartPoints: tempArr,
                         goingToCoords: coords,
-                        location: "Schaumburg,Illinois",
+                        locationAddress: snapshot.data().locationAddress,
                         groupOwner: route.params.groupOwner,
-                        groupName: route.params.groupName
+                        groupName: route.params.groupName,
+                        userCoords: route.params.userCoords
                     })
                 }, 500)
             }
@@ -220,18 +263,7 @@ const ReadyToGo = ({ navigation, route }) => {
     }
 
     const cancelReady = async () => {
-        if (locationUnsubscribe.current != undefined) {
-            locationUnsubscribe.current()
-        }
-        if (groupUnsubscribe.current != undefined) {
-            groupUnsubscribe.current()
-        }
-        if (coordsUnsubscribe.current != undefined) {
-            coordsUnsubscribe.current()
-        }
-        if (navigationUnsubscribe.current != undefined) {
-            navigationUnsubscribe.current()
-        }
+        unsubscribeAll()
 
         await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
             ready: false,
@@ -250,7 +282,6 @@ const ReadyToGo = ({ navigation, route }) => {
 
     const setLocation = async (details) => {
         setLocationAddress(details.formatted_address)
-        console.log(details.formatted_address)
         await db.collection("groups").doc(route.params.groupId).set({
             goingTolatitude: details.geometry.location.lat,
             goingTolongitude: details.geometry.location.lng,
@@ -270,7 +301,6 @@ const ReadyToGo = ({ navigation, route }) => {
                 merge: true
             })
             setTimeout(() => {
-                console.log("STARTED NAVIGATE")
                 navigation.navigate("navigation", {
                     groupId: route.params.groupId,
                     groupUserStartPoints: groupUserStartPoints,
@@ -294,25 +324,10 @@ const ReadyToGo = ({ navigation, route }) => {
         }
     }
 
-    const unsubscribeAll = () => {
-        if (locationUnsubscribe.current != undefined) {
-            locationUnsubscribe.current()
-        }
-        if (groupUnsubscribe.current != undefined) {
-            groupUnsubscribe.current()
-        }
-        if (coordsUnsubscribe.current != undefined) {
-            coordsUnsubscribe.current()
-        }
-        if (navigationUnsubscribe.current != undefined) {
-            navigationUnsubscribe.current()
-        }
-    }
-
     return (
         <View style={tw`flex-1`}>
-            <SafeAreaView style={tw`bg-yellow-400`}>
-                <View style={tw`flex-row justify-between px-4 items-center bg-yellow-400 pb-4`}>
+            {/* <SafeAreaView style={tw`bg-green-100`}>
+                <View style={tw`flex-row justify-between px-4 items-center pb-4 rounded-b-2xl bg-black`}>
                     <View style={tw`flex-row content-center items-center`}>
                         <TouchableOpacity style={tw`py-2`} onPress={() => {
                             cancelReady()
@@ -321,13 +336,12 @@ const ReadyToGo = ({ navigation, route }) => {
                             }, 50)
                         }
                         }>
-                        <FontAwesome5 name='arrow-left' size={24} color="black" />
+                        <FontAwesome5 name='arrow-left' size={24} color="white" />
                         </TouchableOpacity>
                         
-                        <Text style={tw`text-2xl font-semibold pl-3`}>{route.params.groupName.toUpperCase()}</Text>
+                        <Text style={tw`text-2xl text-white font-semibold pl-3`}>{route.params.groupName.toUpperCase()}</Text>
                     </View>
                     <TouchableOpacity style={tw`py-2`} onPress={() => {
-                        console.log("HERE I THINK???")
                         unsubscribeAll()
                         navigation.navigate("addTo", {
                             groupName: route.params.groupName,
@@ -337,10 +351,10 @@ const ReadyToGo = ({ navigation, route }) => {
                         })
                     }
                     }>
-                        <FontAwesome5 name='plus' size={24} color="black" />
+                        <FontAwesome5 name='plus' size={24} color="white" />
                     </TouchableOpacity>
                 </View>
-            </SafeAreaView>
+            </SafeAreaView> */}
 
             <View style={tw`h-full flex-1`}>
                 <View style={tw`flex-1 relative`}>
@@ -357,10 +371,35 @@ const ReadyToGo = ({ navigation, route }) => {
                                         longitude: marker.longitude
                                     }
                                     return (
+                                    //     <Marker
+                                    //     coordinate={startCoords}
+                                    // >
+                                    //     <Image
+                                    //         source={car}
+                                    //         style={{ width: 30, height: 32, transform: [{
+                                    //             rotate:`${heading}deg`
+                                    //         }]}}
+                                    //         resizeMode="contain"
+                                    //     />
+                                    // </Marker>
                                         <Marker
                                             key={marker.userId}
                                             coordinate={coordIn}
-                                        />
+                                        >
+                                            <Image
+                                                source={car}
+                                                style={{ width: 30, height: 32, transform: [{
+                                                    rotate:`${marker.heading}deg`
+                                                }] }}
+                                                resizeMode="contain"
+                                            />
+                                            <Callout tooltip>
+                                                <View style={tw`bg-white p-2 rounded-lg`}>
+                                                    <Text>{marker.name}</Text>
+                                                    <Text>{marker.eta} {marker.distance}</Text>
+                                                </View>
+                                            </Callout>
+                                        </Marker>
                                     )
                                 } else {
                                     return null
@@ -375,33 +414,59 @@ const ReadyToGo = ({ navigation, route }) => {
                             />
                         }
                         {
-                            goingToCoords !== null && goingToCoords.latitude &&
-                            groupUserStartPoints.map((coords) => {
-                                if (coords.latitude) {
-                                    return (
-                                        <MapViewDirections
-                                            key={coords.userId}
-                                            origin={{
-                                                latitude: coords.latitude,
-                                                longitude: coords.longitude
-                                            }}
-                                            destination={goingToCoords}
-                                            apikey='AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak'
-                                            strokeWidth={3}
-                                            strokeColor='black'
-                                            lineDashPattern={[0]}
-                                        />
-                                    )
-                                } else {
-                                    return null
-                                }
+                            goingToCoords != null &&
+                            initalPoints.map((coords) => {
+                                return (
+                                    <MapViewDirections
+                                        key={coords.userId}
+                                        origin={{
+                                            latitude: coords.latitude,
+                                            longitude: coords.longitude
+                                        }}
+                                        destination={goingToCoords}
+                                        apikey='AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak'
+                                        strokeWidth={3}
+                                        strokeColor='black'
+                                        lineDashPattern={[0]}
+                                    />
+                                )
                             })
 
                         }
                     </MapView>
                 </View>
+
                 <View style={tw`absolute flex justify-between h-full w-full`}
                     pointerEvents="box-none">
+                    <SafeAreaView style={tw`w-full bg-black rounded-b-3xl`}>
+                        <View style={tw`flex-row justify-between px-4 items-center pb-4 rounded-b-3xl bg-black`}>
+                            <View style={tw`flex-row content-center items-center`}>
+                                <TouchableOpacity style={tw`py-2`} onPress={() => {
+                                    cancelReady()
+                                    setTimeout(() => {
+                                        navigation.goBack()
+                                    }, 50)
+                                }
+                                }>
+                                    <FontAwesome5 name='arrow-left' size={24} color="white" />
+                                </TouchableOpacity>
+
+                                <Text style={tw`text-2xl text-white font-semibold pl-3`}>{route.params.groupName.toUpperCase()}</Text>
+                            </View>
+                            <TouchableOpacity style={tw`py-2`} onPress={() => {
+                                unsubscribeAll()
+                                navigation.navigate("addTo", {
+                                    groupName: route.params.groupName,
+                                    groupId: route.params.groupId,
+                                    userCoords: route.params.userCoords,
+                                    groupOwner: route.params.groupOwner
+                                })
+                            }
+                            }>
+                                <FontAwesome5 name='plus' size={24} color="white" />
+                            </TouchableOpacity>
+                        </View>
+                    </SafeAreaView>
                     {
                         route.params.groupOwner && ready ?
                             <View style={tw`flex-1 m-6`} pointerEvents='box-none' keyboardShouldPersistTaps="handled"
@@ -442,11 +507,11 @@ const ReadyToGo = ({ navigation, route }) => {
                             <View style={tw`p-4 flex-1 flex`}>
                                 {
                                     goingToCoords != null && route.params.groupOwner && ready &&
-                                    <View style={tw`flex items-center mt-2`}>
-                                        <TouchableOpacity style={tw`p-4 bg-yellow-400 rounded`} onPress={() => {
+                                    <View style={tw`flex mt-2`}>
+                                        <TouchableOpacity style={tw`p-4 bg-black rounded`} onPress={() => {
                                             startNavigation()
                                         }}>
-                                            <Text style={tw`font-semibold text-lg`}>Start Navigation</Text>
+                                            <Text style={tw`font-semibold text-lg text-center text-white`}>Start Navigation</Text>
                                         </TouchableOpacity>
                                     </View>
 
@@ -485,11 +550,11 @@ const ReadyToGo = ({ navigation, route }) => {
                                                     :
                                                     <View style={tw`flex items-center`}>
                                                         <View style={tw`flex-row items-center h-52`}>
-                                                            <TouchableOpacity style={tw`bg-yellow-400 py-4 px-14 rounded-lg`} onPress={() => {
+                                                            <TouchableOpacity style={tw`bg-black py-4 px-14 rounded-lg`} onPress={() => {
                                                                 setReady(true)
                                                                 confirmReady()
                                                             }}>
-                                                                <Text style={tw`text-xl font-semibold`}>I'm ready!</Text>
+                                                                <Text style={tw`text-xl text-white font-semibold`}>I'm ready!</Text>
                                                             </TouchableOpacity>
                                                         </View>
                                                     </View>

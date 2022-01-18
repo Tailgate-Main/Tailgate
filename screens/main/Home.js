@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View, SafeAreaView, Platform, StatusBar } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, SafeAreaView, Platform, StatusBar, Image } from 'react-native'
 import tw from 'tailwind-react-native-classnames'
 import { FontAwesome5 } from '@expo/vector-icons';
 import Map from '../../components/Map';
@@ -7,7 +7,8 @@ import { FlatList } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { auth, db } from '../../config/firebaseConfig';
-import { ActivityIndicator, Modal } from 'react-native';
+import { ActivityIndicator } from 'react-native';
+import car from "../../assets/cars/car.png"
 
 const Home = ({ navigation }) => {
 
@@ -16,6 +17,7 @@ const Home = ({ navigation }) => {
     const mapRef = useRef()
     const [loading, setLoading] = useState(true)
     const [mapCoords, setMapCoords] = useState(null)
+    const [heading, setHeading] = useState(0)
 
     const [data, setData] = useState([{
         userId: 1,
@@ -26,9 +28,6 @@ const Home = ({ navigation }) => {
     const groupsUnsubscribe = useRef()
 
     useEffect(() => {
-        if (Platform.OS === "android") {
-            StatusBar.setBackgroundColor('#FF573300');
-        }
         (async () => {
             setLoading(true)
             console.log("GOT HERE")
@@ -55,7 +54,7 @@ const Home = ({ navigation }) => {
             mapRef.current.animateCamera({ center: coords, pitch: 0, heading: 0, altitude: 0, zoom: 18 }, 1000)
             setMapCoords(coords)
             setStartCoords(other);
-
+            setHeading(location.coords.heading)
             getGroupData()
 
         })();
@@ -94,7 +93,7 @@ const Home = ({ navigation }) => {
     // }
 
     const navigateToRequests = () => {
-        if(groupsUnsubscribe.current != undefined){
+        if (groupsUnsubscribe.current != undefined) {
             groupsUnsubscribe.current()
         }
         navigation.navigate("requests")
@@ -121,10 +120,21 @@ const Home = ({ navigation }) => {
                                 provider={PROVIDER_GOOGLE}
                             >
                                 {
+                                    console.log(heading)
+                                }
+                                {
                                     startCoords &&
                                     <Marker
                                         coordinate={startCoords}
-                                    />
+                                    >
+                                        <Image
+                                            source={car}
+                                            style={{ width: 30, height: 32, transform: [{
+                                                rotate:`${heading}deg`
+                                            }]}}
+                                            resizeMode="contain"
+                                        />
+                                    </Marker>
                                 }
 
                             </MapView>
@@ -132,8 +142,8 @@ const Home = ({ navigation }) => {
                         <View style={tw`absolute w-full h-full flex justify-between flex-1`} pointerEvents='box-none'>
                             <SafeAreaView style={tw`flex-row justify-between mx-4 ${Platform.OS === "android" && "mt-2"}`}>
                                 <View></View>
-                                <TouchableOpacity style={tw`bg-yellow-400 p-2 rounded-full`} onPress={() => { navigateToRequests() }}>
-                                    <FontAwesome5 name="bell" size={24} color="black" />
+                                <TouchableOpacity style={tw`bg-black p-2 rounded-full`} onPress={() => { navigateToRequests() }}>
+                                    <FontAwesome5 name="bell" size={24} color="white" />
                                 </TouchableOpacity>
                             </SafeAreaView>
                             <View style={tw`h-2/5 rounded-t-3xl bg-white w-full`}>
@@ -154,7 +164,7 @@ const Home = ({ navigation }) => {
                                                         <View style={tw`flex items-center`}>
                                                             <TouchableOpacity style={tw`items-center justify-center rounded-full w-16 h-16 bg-red-400 mb-1`}
                                                                 onPress={() => {
-                                                                    if(groupsUnsubscribe.current != undefined){
+                                                                    if (groupsUnsubscribe.current != undefined) {
                                                                         groupsUnsubscribe.current()
                                                                     }
                                                                     navigation.navigate("readyToGo", {
@@ -170,14 +180,14 @@ const Home = ({ navigation }) => {
                                                         </View>
                                                         :
                                                         <View>
-                                                            <TouchableOpacity style={tw`items-center justify-center  rounded-full w-16 h-16 bg-yellow-400`}
+                                                            <TouchableOpacity style={tw`items-center justify-center rounded-full w-16 h-16 bg-black`}
                                                                 onPress={() => {
-                                                                    if(groupsUnsubscribe.current != undefined){
+                                                                    if (groupsUnsubscribe.current != undefined) {
                                                                         groupsUnsubscribe.current()
                                                                     }
                                                                     navigation.navigate("add")
                                                                 }}>
-                                                                <FontAwesome5 name="plus" size={24} color="black" />
+                                                                <FontAwesome5 name="plus" size={24} color="white" />
                                                             </TouchableOpacity>
                                                         </View>
                                                 }
