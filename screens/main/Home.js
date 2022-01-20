@@ -153,13 +153,12 @@ const Home = ({ navigation }) => {
                                 <View></View>
                                 <View style={tw`flex-row bg-yellow-400 rounded-full p-1 shadow-xl`}>
                                     <TouchableOpacity style={tw`px-2 py-1 mr-1 rounded-full`} onPress={() => { navigateToRequests() }}>
-                                        <FontAwesome5 name="bell" size={26} color="black" />
+                                        <FontAwesome5 name="bell" size={20} color="black" />
                                     </TouchableOpacity>
                                     <View style={tw`h-full w-px bg-black`} />
                                     <View style={tw`h-full w-px bg-black`} />
-                                    <View style={tw`h-full w-px bg-black`} />
-                                    <TouchableOpacity style={tw`px-2 py-1 ml-1 rounded-full`} onPress={() => { }}>
-                                        <FontAwesome5 name="cog" size={26} color="black" />
+                                    <TouchableOpacity style={tw`px-2 py-1 ml-1 rounded-full`} onPress={() => {navigation.navigate("settings")}}>
+                                        <FontAwesome5 name="cog" size={20} color="black" />
                                     </TouchableOpacity>
                                 </View>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, SafeAreaView, KeyboardAvoidingView, TouchableOpacity, TextInput, Image, ActivityIndicator } from 'react-native'
+import { View, Text, SafeAreaView, TouchableOpacity, Image, ActivityIndicator } from 'react-native'
 import { db, auth } from '../../config/firebaseConfig';
 import tw from "tailwind-react-native-classnames"
 import * as Google from "expo-google-app-auth"
@@ -8,18 +8,23 @@ import firebase from 'firebase/compat';
 const Login = ({ navigation }) => {
     const [loading, setLoading] = useState(true)
 
+    // useEffect(() => {
+
+    // }, []);
+
     useEffect(() => {
-        auth.onAuthStateChanged(function(user) {
+        console.log("here")
+        auth.onAuthStateChanged(function (user) {
             console.log("AEFIUHAEF")
             console.log(user)
             if (user) {
                 navigation.navigate("home")
             } else {
-              // no user logged in. currentUser is null.
+                // no user logged in. currentUser is null.
             }
             setLoading(false)
-          });
-    }, []);
+        });
+    }, [navigation]);
 
     const handleGoogleLogin = () => {
         const config = {
@@ -45,6 +50,9 @@ const Login = ({ navigation }) => {
                                     userName: res.user.displayName,
                                     userEmail: res.user.email
                                 })
+                            setTimeout(() => {
+                                navigation.navigate("home")
+                            }, 200)
                         })
                 } else {
                     alert("Sign in not successful")
@@ -92,6 +100,5 @@ const Login = ({ navigation }) => {
 
     )
 }
-
 
 export default Login

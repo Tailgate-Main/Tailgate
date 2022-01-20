@@ -87,14 +87,14 @@ const AddGroup = ({ navigation, route }) => {
                             </View>
                             {
                                 loading ?
-                                    <View style={tw`bg-black h-14 w-14 flex-row justify-center items-center rounded-full`}>
-                                        <ActivityIndicator color="#fff" animating={loading} />
+                                    <View style={tw`bg-yellow-400 h-14 w-14 flex-row justify-center items-center rounded-full`}>
+                                        <ActivityIndicator color="#000" animating={loading} />
                                     </View>
                                     :
-                                    <TouchableOpacity style={tw`bg-black flex-row justify-center items-center h-14 w-14 rounded-full`} onPress={() => {
+                                    <TouchableOpacity style={tw`bg-yellow-400 flex-row justify-center items-center h-14 w-14 rounded-full`} onPress={() => {
                                         createGroup()
                                     }}>
-                                        <FontAwesome5 name="check" size={24} color="white" />
+                                        <FontAwesome5 name="check" size={24} color="black" />
                                     </TouchableOpacity>
                             }
 
@@ -116,11 +116,11 @@ const AddGroup = ({ navigation, route }) => {
                                                     value={val}
                                                     editable={false}
                                                 />
-                                                <TouchableOpacity style={tw`flex justify-center p-2 flex-1 bg-black ml-2 rounded-lg`}
+                                                <TouchableOpacity style={tw`flex justify-center p-2 flex-1 bg-yellow-400 ml-2 rounded-lg`}
                                                     onPress={() => {
                                                         handleDeleteMember(i)
                                                     }}>
-                                                    <Text style={tw`text-white`}>Delete</Text>
+                                                    <Text style={tw`text-black`}>Delete</Text>
                                                 </TouchableOpacity>
                                             </View>
 
@@ -139,7 +139,7 @@ const AddGroup = ({ navigation, route }) => {
                             value={addMember}
                         />
                         <View style={tw`flex-row items-center justify-center mt-2`} >
-                            <TouchableOpacity style={tw`items-center justify-center flex rounded-full p-4 bg-black`} onPress={() => {
+                            <TouchableOpacity style={tw`items-center justify-center flex rounded-full p-4 bg-yellow-400`} onPress={() => {
                                 let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
                                 if (reg.test(addMember) === true) {
                                     if (addMember != auth.currentUser.email) {
@@ -150,7 +150,7 @@ const AddGroup = ({ navigation, route }) => {
                                     }
                                 }
                             }}>
-                                <FontAwesome5 name="plus" size={24} color="white" />
+                                <FontAwesome5 name="plus" size={24} color="black" />
                             </TouchableOpacity>
                         </View>
                     </View>

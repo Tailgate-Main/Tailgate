@@ -549,14 +549,14 @@ const ReadyToGo = ({ navigation, route }) => {
                                 <TouchableOpacity style={tw`py-2`} onPress={() => {
                                     cancelReady()
                                     setTimeout(() => {
-                                        navigation.goBack()
+                                        navigation.navigate("home")
                                     }, 50)
                                 }
                                 }>
                                     <FontAwesome5 name='arrow-left' size={24} color="black" />
                                 </TouchableOpacity>
 
-                                <Text style={tw`text-2xl text-black font-semibold pl-3`}>{route.params.groupName.toUpperCase()}</Text>
+                                <Text style={tw`text-2xl text-black font-bold pl-3`}>{route.params.groupName.toUpperCase()}</Text>
                             </View>
                             <TouchableOpacity style={tw`py-2`} onPress={() => {
                                 unsubscribeAll()
