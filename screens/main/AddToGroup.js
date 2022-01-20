@@ -64,7 +64,7 @@ const AddToGroup = ({ navigation, route }) => {
                     <View style={tw`flex-1`}>
                         <View style={tw`flex-row justify-between items-center`}>
                             <View style={tw`flex-row items-center`}>
-                                <TouchableOpacity style={tw`rounded-full mr-4 py-2`} onPress={() => {
+                                <TouchableOpacity style={tw`rounded-full mr-4 py-2`} disabled={loading} onPress={() => {
                                     navigation.navigate("readyToGo", {
                                         groupName: route.params.groupName,
                                         groupId: route.params.groupId,

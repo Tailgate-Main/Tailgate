@@ -1,28 +1,30 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, SafeAreaView, KeyboardAvoidingView, TouchableOpacity, TextInput, Image } from 'react-native'
+import { View, Text, SafeAreaView, TouchableOpacity, Image, ActivityIndicator } from 'react-native'
 import { db, auth } from '../../config/firebaseConfig';
 import tw from "tailwind-react-native-classnames"
 import * as Google from "expo-google-app-auth"
-import firebase from 'firebase';
+import firebase from 'firebase/compat';
 
 const Login = ({ navigation }) => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(true)
 
+    // useEffect(() => {
+
+    // }, []);
+
     useEffect(() => {
-        return firebase.auth().onAuthStateChanged((user) => {
+        console.log("here")
+        auth.onAuthStateChanged(function (user) {
+            console.log("AEFIUHAEF")
+            console.log(user)
             if (user) {
                 navigation.navigate("home")
+            } else {
+                // no user logged in. currentUser is null.
             }
-            setLoading(false);
+            setLoading(false)
         });
-    }, []);
-
-    const handleLogin = async () => {
-        await auth.signInWithEmailAndPassword(email, password)
-        navigation.navigate("home")
-    }
+    }, [navigation]);
 
     const handleGoogleLogin = () => {
         const config = {
@@ -39,7 +41,7 @@ const Login = ({ navigation }) => {
                     const { email, name, photoUrl } = user
                     const credential = firebase.auth.GoogleAuthProvider
                         .credential(idToken, accessToken);
-                    firebase.auth().signInWithCredential(credential)
+                    auth.signInWithCredential(credential)
                         .then(async (res) => {
                             // user res, create your user, do whatever you want
                             await db.collection("users").doc(res.user.email).set(
@@ -48,7 +50,9 @@ const Login = ({ navigation }) => {
                                     userName: res.user.displayName,
                                     userEmail: res.user.email
                                 })
-                            alert(email)
+                            setTimeout(() => {
+                                navigation.navigate("home")
+                            }, 200)
                         })
                 } else {
                     alert("Sign in not successful")
@@ -61,30 +65,40 @@ const Login = ({ navigation }) => {
     }
 
     return (
-        <SafeAreaView style={[tw`bg-yellow-400 h-full`]}>
-            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={tw`flex-1`}>
+        <SafeAreaView style={[tw`bg-white h-full`]}>
+            <View style={tw`flex-1`}>
                 <View style={[tw`m-auto flex items-center`]}>
-                    <Text style={[tw`text-black text-3xl font-bold mb-6`]}>TAILGATE</Text>
-                    <TouchableOpacity style={[tw`flex flex-row p-2.5 bg-white rounded-xl w-80 border-2 border-black justify-between px-14 mb-2`]} onPress={() => { handleGoogleLogin() }}>
-                        <Image source={require('../../assets/login_Img/google.png')} />
-                        <Text style={[tw`text-black text-lg text-center`]}>
-                            Sign in with Google
-                        </Text>
-                    </TouchableOpacity>
+                    <Text style={[tw`text-black text-3xl font-semibold mb-4`]}>Login to your account</Text>
+                    {
+                        loading ?
+                            <TouchableOpacity style={[tw`flex-row p-2.5 bg-white rounded-xl w-80 border-2 border-black justify-center h-14 mb-2`]} onPress={() => { handleGoogleLogin() }}>
+                                <ActivityIndicator color="#000" animating={loading} />
+                            </TouchableOpacity>
+                            :
+                            <TouchableOpacity style={[tw`flex-row p-2.5 bg-yellow-400 rounded-xl w-80 shadow-lg justify-between mb-2 px-14`]} onPress={() => { handleGoogleLogin() }}>
+                                <Image source={require('../../assets/login_Img/google.png')} />
+                                <Text style={[tw`text-black text-lg text-center`]}>
+                                    Sign in with Google
+                                </Text>
+                            </TouchableOpacity>
+                    }
+
                     <View style={[tw`flex flex-row`]}>
                         <Text style={[tw`mr-2 text-lg`]}>Don't have an account?</Text>
-                        <TouchableOpacity onPress={() => { navigation.navigate("signup") }}>
-                            <Text style={[tw`mr-2 text-lg text-blue-600`]}>Signup here!</Text>
+                        <TouchableOpacity onPress={() => {
+                            if (!loading) {
+                                navigation.navigate("signup")
+                            }
+                        }}>
+                            <Text style={[tw`mr-2 text-lg text-blue-600 text-yellow-400`]}>Signup here!</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
-            </KeyboardAvoidingView>
+            </View>
 
         </SafeAreaView>
 
     )
 }
-
 
 export default Login

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Signup from './screens/auth/Signup';
@@ -8,8 +8,9 @@ import ReadyToGo from './screens/main/ReadyToGo';
 import Navigation from "./screens/main/Navigation"
 import AddGroup from './screens/main/AddGroup';
 import Requests from './screens/main/Requests';
-import { StatusBar } from 'react-native';
+import { StatusBar, Platform } from 'react-native';
 import AddToGroup from './screens/main/AddToGroup';
+import Settings from './screens/auth/Settings';
 
 function SignupScreen({ navigation }) {
     return (
@@ -59,9 +60,20 @@ function AddToGroupScreen({ navigation, route }){
     )
 }
 
+function SettingsScreen({ navigation }){
+    return <Settings navigation={navigation}/>
+}
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+
+    useEffect(() => {
+        if (Platform.OS === "android") {
+            StatusBar.setBackgroundColor('#FF573300');
+        }
+    }, [])
+
     return (
         <NavigationContainer independent={true}>
             <StatusBar barStyle="dark-content" />
@@ -83,6 +95,8 @@ export default function App() {
                 <Stack.Screen name="requests" component={RequestsScreen} options={{ gestureEnabled: false }}
                 />
                 <Stack.Screen name="addTo" component={AddToGroupScreen} options={{ gestureEnabled: false }}
+                />
+                <Stack.Screen name="settings" component={SettingsScreen} options={{ gestureEnabled: false }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

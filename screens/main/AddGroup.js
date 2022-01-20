@@ -5,12 +5,14 @@ import tw from 'tailwind-react-native-classnames'
 import { FontAwesome5 } from '@expo/vector-icons';
 import { auth, db } from '../../config/firebaseConfig'
 import uuid from 'react-native-uuid'
+import { ActivityIndicator } from 'react-native';
 
 const AddGroup = ({ navigation, route }) => {
 
     const [groupName, setGroupName] = useState("")
     const [groupMembers, setGroupMembers] = useState([])
     const [addMember, setAddMember] = useState("")
+    const [loading, setLoading] = useState(false)
 
     const handleAddMember = (e) => {
         let tempArr = []
@@ -31,7 +33,9 @@ const AddGroup = ({ navigation, route }) => {
     }
 
     const createGroup = async () => {
-        if(groupName != "" && groupMembers.length !== 0){
+        if (groupName != "" && groupMembers.length !== 0) {
+            setLoading(true)
+
             var id = uuid.v1().replace(/-/g, '')
 
             await db.collection("groups").doc(id).set({
@@ -61,6 +65,7 @@ const AddGroup = ({ navigation, route }) => {
             })
 
             setTimeout(() => {
+                setLoading(false)
                 navigation.navigate("home")
             }, 500)
         }
@@ -73,18 +78,26 @@ const AddGroup = ({ navigation, route }) => {
                     <View style={tw`flex-1`}>
                         <View style={tw`flex-row justify-between items-center`}>
                             <View style={tw`flex-row items-center`}>
-                                <TouchableOpacity style={tw`rounded-full mr-4`} onPress={() => {
+                                <TouchableOpacity style={tw`rounded-full mr-4`} disabled={loading} onPress={() => {
                                     navigation.navigate("home")
                                 }}>
                                     <FontAwesome5 name="arrow-left" size={24} color="black" />
                                 </TouchableOpacity>
                                 <Text style={tw`text-3xl font-bold`}>ADD GROUP</Text>
                             </View>
-                            <TouchableOpacity style={tw`bg-yellow-400 p-4 rounded-full`} onPress={() => {
-                                createGroup()
-                            }}>
-                                <FontAwesome5 name="check" size={24} color="black" />
-                            </TouchableOpacity>
+                            {
+                                loading ?
+                                    <View style={tw`bg-yellow-400 h-14 w-14 flex-row justify-center items-center rounded-full`}>
+                                        <ActivityIndicator color="#000" animating={loading} />
+                                    </View>
+                                    :
+                                    <TouchableOpacity style={tw`bg-yellow-400 flex-row justify-center items-center h-14 w-14 rounded-full`} onPress={() => {
+                                        createGroup()
+                                    }}>
+                                        <FontAwesome5 name="check" size={24} color="black" />
+                                    </TouchableOpacity>
+                            }
+
                         </View>
                         <TextInput
                             style={[tw`bg-white border-2 border-black rounded-xl w-full h-12 pl-2 pr-2 mb-4 mt-4`]}
@@ -107,7 +120,7 @@ const AddGroup = ({ navigation, route }) => {
                                                     onPress={() => {
                                                         handleDeleteMember(i)
                                                     }}>
-                                                    <Text>Delete</Text>
+                                                    <Text style={tw`text-black`}>Delete</Text>
                                                 </TouchableOpacity>
                                             </View>
 
@@ -129,7 +142,7 @@ const AddGroup = ({ navigation, route }) => {
                             <TouchableOpacity style={tw`items-center justify-center flex rounded-full p-4 bg-yellow-400`} onPress={() => {
                                 let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
                                 if (reg.test(addMember) === true) {
-                                    if(addMember != auth.currentUser.email){
+                                    if (addMember != auth.currentUser.email) {
                                         if (addMember !== "") {
                                             handleAddMember(addMember)
                                             setAddMember("")
