@@ -87,11 +87,11 @@ const AddGroup = ({ navigation, route }) => {
                             </View>
                             {
                                 loading ?
-                                    <View style={tw`bg-black h-14 w-14 rounded-full`}>
+                                    <View style={tw`bg-black h-14 w-14 flex-row justify-center items-center rounded-full`}>
                                         <ActivityIndicator color="#fff" animating={loading} />
                                     </View>
                                     :
-                                    <TouchableOpacity style={tw`bg-black h-14 w-14 rounded-full`} onPress={() => {
+                                    <TouchableOpacity style={tw`bg-black flex-row justify-center items-center h-14 w-14 rounded-full`} onPress={() => {
                                         createGroup()
                                     }}>
                                         <FontAwesome5 name="check" size={24} color="white" />

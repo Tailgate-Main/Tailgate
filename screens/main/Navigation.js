@@ -10,7 +10,14 @@ import { StyleSheet } from 'react-native'
 import * as Location from 'expo-location';
 import axios from 'axios'
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
-import car from "../../assets/cars/car.png"
+import Svg from 'react-native-svg';
+import greycar from "../../assets/cars/greycar.png"
+import redcar from "../../assets/cars/redcar.png"
+import bluecar from "../../assets/cars/bluecar.png"
+import greencar from "../../assets/cars/greencar.png"
+import skybluecar from "../../assets/cars/skybluecar.png"
+import pinkcar from "../../assets/cars/pinkcar.png"
+import yellowcar from "../../assets/cars/yellowcar.png"
 
 const Navigation = ({ navigation, route }) => {
 
@@ -51,9 +58,9 @@ const Navigation = ({ navigation, route }) => {
             tempArr.push(goingToTemp)
             mapRef.current.fitToCoordinates(tempArr, {
                 edgePadding: {
-                    bottom: 270,
+                    bottom: 250,
                     right: 75,
-                    top: 50,
+                    top: 100,
                     left: 75,
                 },
                 animated: true,
@@ -96,7 +103,8 @@ const Navigation = ({ navigation, route }) => {
                         latitude: location.coords.latitude,
                         longitude: location.coords.longitude,
                         eta: await response.data.rows[0].elements[0].duration.text,
-                        distance: await response.data.rows[0].elements[0].distance.text
+                        distance: await response.data.rows[0].elements[0].distance.text,
+                        heading: location.coords.heading
                     }, {
                         merge: true
                     })
@@ -106,7 +114,7 @@ const Navigation = ({ navigation, route }) => {
             .catch(error => {
                 console.log(error);
             });
-        timeoutId.current = setTimeout(() => { updateInformation() }, 5000)
+        timeoutId.current = setTimeout(() => { updateInformation() }, 20000)
     }
 
     const getLocation = () => {
@@ -143,6 +151,9 @@ const Navigation = ({ navigation, route }) => {
                         userId: doc.data().userId,
                         distance: doc.data().distance,
                         name: doc.data().userName,
+                        heading: doc.data().heading,
+                        color: doc.data().color,
+                        eta: doc.data().eta
                         //TODO: ADD COLOR
                     }
                     tempArr.push(coordsForDoc)
@@ -213,9 +224,101 @@ const Navigation = ({ navigation, route }) => {
                             }
                             return (
                                 <Marker
+                                    tracksInfoWindowChanges={true}
+                                    tracksViewChanges={true}
                                     key={marker.userId}
                                     coordinate={coordIn}
                                 >
+                                    {
+                                        marker.color &&
+                                        <Svg>
+                                            {
+                                                marker.color == "grey" &&
+                                                <Image
+                                                    source={greycar}
+                                                    style={{
+                                                        height: 40, transform: [{
+                                                            rotate: `${marker.heading}deg`
+                                                        }]
+                                                    }}
+                                                    resizeMode="contain"
+                                                />
+                                            }
+                                            {
+                                                marker.color == "red" &&
+                                                <Image
+                                                    source={redcar}
+                                                    style={{
+                                                        height: 40, transform: [{
+                                                            rotate: `${marker.heading}deg`
+                                                        }]
+                                                    }}
+                                                    resizeMode="contain"
+                                                />
+                                            }
+                                            {
+                                                marker.color == "blue" &&
+                                                <Image
+                                                    source={bluecar}
+                                                    style={{
+                                                        height: 40, transform: [{
+                                                            rotate: `${marker.heading}deg`
+                                                        }]
+                                                    }}
+                                                    resizeMode="contain"
+                                                />
+                                            }
+                                            {
+                                                marker.color == "green" &&
+                                                <Image
+                                                    source={greencar}
+                                                    style={{
+                                                        height: 40, transform: [{
+                                                            rotate: `${marker.heading}deg`
+                                                        }]
+                                                    }}
+                                                    resizeMode="contain"
+                                                />
+                                            }
+                                            {
+                                                marker.color == "skyblue" &&
+                                                <Image
+                                                    source={skybluecar}
+                                                    style={{
+                                                        height: 40, transform: [{
+                                                            rotate: `${marker.heading}deg`
+                                                        }]
+                                                    }}
+                                                    resizeMode="contain"
+                                                />
+                                            }
+                                            {
+                                                marker.color == "pink" &&
+                                                <Image
+                                                    source={pinkcar}
+                                                    style={{
+                                                        height: 40, transform: [{
+                                                            rotate: `${marker.heading}deg`
+                                                        }]
+                                                    }}
+                                                    resizeMode="contain"
+                                                />
+                                            }
+                                            {
+                                                marker.color == "yellow" &&
+                                                <Image
+                                                    source={yellowcar}
+                                                    style={{
+                                                        height: 40, transform: [{
+                                                            rotate: `${marker.heading}deg`
+                                                        }]
+                                                    }}
+                                                    resizeMode="contain"
+                                                />
+                                            }
+                                        </Svg>
+
+                                    }
                                     <Callout tooltip>
                                         <View style={tw`bg-white p-2 rounded-lg`}>
                                             <Text>{marker.name}</Text>
@@ -251,14 +354,12 @@ const Navigation = ({ navigation, route }) => {
                                 />
                             )
                         })
-
                     }
-
                 </MapView>
             </View>
             <View style={tw`absolute flex justify-between h-full w-full flex-1`} pointerEvents='box-none'>
                 <View></View>
-                <View style={tw`bg-white pb-8 pt-6 pl-8 pr-8 rounded-t-3xl`}>
+                <View style={tw`bg-white pb-8 pt-4 pl-8 pr-8 rounded-t-3xl`}>
                     <View>
                         <FlatList
                             horizontal={true}
@@ -268,15 +369,74 @@ const Navigation = ({ navigation, route }) => {
                             data={groupUserStartPoints}
                             keyExtractor={(item) => item.userId}
                             renderItem={({ item }) => (
-                                <View style={tw`m-3 flex items-center`}>
+                                <View style={tw`mr-3 flex items-center`}>
                                     {
                                         <View style={tw`items-center justify-center rounded-full w-12 h-12 mb-1 bg-black`}>
                                             <View style={tw`items-center justify-center rounded-full w-8 h-8 bg-black`}>
-                                                <Image source={car} resizeMode='contain' style={styles.image} />
+                                                {
+                                                    item.color == "grey" &&
+                                                    <Image
+                                                        source={greycar}
+                                                        style={styles.image}
+                                                        resizeMode="contain"
+                                                    />
+                                                }
+                                                {
+                                                    item.color == "red" &&
+                                                    <Image
+                                                        source={redcar}
+                                                        style={styles.image}
+                                                        resizeMode="contain"
+                                                    />
+                                                }
+                                                {
+                                                    item.color == "blue" &&
+                                                    <Image
+                                                        source={bluecar}
+                                                        style={styles.image}
+                                                        resizeMode="contain"
+                                                    />
+                                                }
+                                                {
+                                                    item.color == "green" &&
+                                                    <Image
+                                                        source={greencar}
+                                                        style={styles.image}
+                                                        resizeMode="contain"
+                                                    />
+                                                }
+                                                {
+                                                    item.color == "skyblue" &&
+                                                    <Image
+                                                        source={skybluecar}
+                                                        style={styles.image}
+                                                        resizeMode="contain"
+                                                    />
+                                                }
+                                                {
+                                                    item.color == "pink" &&
+                                                    <Image
+                                                        source={pinkcar}
+                                                        style={styles.image}
+                                                        resizeMode="contain"
+                                                    />
+                                                }
+                                                {
+                                                    item.color == "yellow" &&
+                                                    <Image
+                                                        source={yellowcar}
+                                                        style={styles.image}
+                                                        resizeMode="contain"
+                                                    />
+                                                }
                                             </View>
                                         </View>
                                     }
-                                    <Text style={tw`uppercase text-center`}>Saks</Text>
+                                    {
+                                        item.name !== undefined &&
+                                        <Text style={tw`uppercase text-center`}>{item.name.slice(0, 4)}</Text>
+                                    }
+
                                 </View>
                             )}
                         />
@@ -288,13 +448,13 @@ const Navigation = ({ navigation, route }) => {
                         <View style={tw``}>
                             {
                                 !isLoading ?
-                                    <TouchableOpacity style={tw`bg-black rounded-2xl h-16 w-24 items-center flex justify-center`} onPress={() => {
+                                    <TouchableOpacity style={tw`bg-yellow-400 rounded-2xl h-16 w-24 items-center flex justify-center`} onPress={() => {
                                         goBack()
                                     }}>
                                         <Text style={tw`text-2xl text-white`}>Quit</Text>
                                     </TouchableOpacity>
                                     :
-                                    <View style={tw`bg-black rounded-2xl h-16 w-24 justify-center items-center`}>
+                                    <View style={tw`bg-yellow-400 rounded-2xl h-16 w-24 justify-center items-center`}>
                                         <ActivityIndicator animating={isLoading} color="#fff" />
                                     </View>
                             }

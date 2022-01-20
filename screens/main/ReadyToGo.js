@@ -13,10 +13,14 @@ import MapViewDirections from "react-native-maps-directions"
 import { FontAwesome5 } from '@expo/vector-icons';
 import axios from 'axios'
 import * as Location from 'expo-location';
-import car from "../../assets/cars/car.png"
-
-
-//TODO: Implement this url https://maps.googleapis.com/maps/api/distancematrix/json?origins=%2244.23,-120.2%22|%2244,-120%22&destinations=place_id:ChIJqVJ3OCm0D4gRc9S7toT7_IY&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak
+import Svg from 'react-native-svg';
+import greycar from "../../assets/cars/greycar.png"
+import redcar from "../../assets/cars/redcar.png"
+import bluecar from "../../assets/cars/bluecar.png"
+import greencar from "../../assets/cars/greencar.png"
+import skybluecar from "../../assets/cars/skybluecar.png"
+import pinkcar from "../../assets/cars/pinkcar.png"
+import yellowcar from "../../assets/cars/yellowcar.png"
 
 const ReadyToGo = ({ navigation, route }) => {
 
@@ -37,8 +41,15 @@ const ReadyToGo = ({ navigation, route }) => {
     const timeoutId = useRef()
     const setInitial = useRef(false)
 
+    const [colors, setColors] = useState(["blue", "red", "grey", "green", "pink", "yellow", "skyblue"])
+
     useEffect(() => {
         async function func() {
+            // updateInformation()
+            // getGroupStartCoords()
+            // checkNavigation()
+            // getGroup()
+            // getLocation()
             getReady()
         }
         const unsubscribe = navigation.addListener('focus', () => {
@@ -47,21 +58,30 @@ const ReadyToGo = ({ navigation, route }) => {
             setGoingToCoords(null)
             setReady(false)
             func()
+            setInitial.current = false
         });
         return unsubscribe;
     }, [navigation]);
 
     useEffect(() => {
         if (ready) {
+            updateInformation()
             getGroupStartCoords()
             checkNavigation()
             getGroup()
             getLocation()
-            updateInformation()
         } else {
             unsubscribeAll()
         }
     }, [ready])
+
+    // useEffect(() => {
+    //     updateInformation()
+    //     getGroupStartCoords()
+    //     checkNavigation()
+    //     getGroup()
+    //     getLocation()
+    // }, [])
 
     useEffect(() => {
         if (goingToCoords) {
@@ -91,7 +111,8 @@ const ReadyToGo = ({ navigation, route }) => {
                     },
                     animated: true,
                 });
-            } else {
+            }
+            else {
                 mapRef.current.animateCamera({ center: { latitude: 20.288954, longitude: -99.251220 }, pitch: 0, heading: 0, altitude: 0, zoom: 3.4 }, 100)
             }
         }
@@ -114,35 +135,73 @@ const ReadyToGo = ({ navigation, route }) => {
     }
 
     const updateInformation = async () => {
-        let location = await Location.getCurrentPositionAsync();
-
-        axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="44.23,-120.2"&destinations=place_id:ChIJqVJ3OCm0D4gRc9S7toT7_IY&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
-        .then(async (response) => {
-            console.log('getting data from axios', await response.data.rows[0].elements[0].distance);
-            if(await response.data){
-                console.log("NOW HERE ACTUALLY 2")
-                await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
-                    latitude: location.coords.latitude,
-                    longitude: location.coords.longitude,
-                    eta: await response.data.rows[0].elements[0].duration.text,
-                    distance: await response.data.rows[0].elements[0].distance.text,
-                    heading: location.coords.heading
-                }, {
-                    merge: true
-                })
-            }
-
-        })
-        .catch(error => {
-            console.log(error);
+        console.log("Updating information now")
+        console.log("STILL UPDATING")
+        console.log(timeoutId.current)
+        let location = await Location.getCurrentPositionAsync({
+            maximumAge: Platform.OS === "android" && 60000, // only for Android
+            accuracy: Platform.OS === "android" ? Location.Accuracy.Low : Location.Accuracy.Lowest,
         });
-        timeoutId.current = setTimeout(() => {updateInformation()}, 20000)
+        console.log("HERE")
+        console.log(placeId)
+        if (placeId != "") {
+            axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeId}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
+                .then(async (response) => {
+                    console.log('getting data from axios', await response.data.rows[0].elements[0].distance);
+                    if (await response.data) {
+                        console.log("NOW HERE ACTUALLY 2")
+                        await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
+                            latitude: location.coords.latitude,
+                            longitude: location.coords.longitude,
+                            eta: await response.data.rows[0].elements[0].duration.text,
+                            distance: await response.data.rows[0].elements[0].distance.text,
+                            heading: location.coords.heading
+                        }, {
+                            merge: true
+                        })
+                    }
+
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+        timeoutId.current = setTimeout(() => { updateInformation() }, 20000)
+        
+    }
+
+    const updateInfoQuick = async (placeIdIn) => {
+        let location = await Location.getCurrentPositionAsync({
+            maximumAge: Platform.OS === "android" && 60000, // only for Android
+            accuracy: Platform.OS === "android" ? Location.Accuracy.Low : Location.Accuracy.Lowest,
+        });
+        if (placeIdIn != "") {
+            axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeIdIn}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
+                .then(async (response) => {
+                    console.log('getting data from axios', await response.data.rows[0].elements[0].distance);
+                    if (await response.data) {
+                        console.log("NOW HERE ACTUALLY 2")
+                        await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
+                            latitude: location.coords.latitude,
+                            longitude: location.coords.longitude,
+                            eta: await response.data.rows[0].elements[0].duration.text,
+                            distance: await response.data.rows[0].elements[0].distance.text,
+                            heading: location.coords.heading
+                        }, {
+                            merge: true
+                        })
+                    }
+
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
     }
 
     const getGroupStartCoords = () => {
         setInitial.current = false
         coordsUnsubscribe.current = db.collection("accepted").where("groupId", "==", route.params.groupId).onSnapshot(snapshot => {
-            console.log("GROUP UNSUB")
             var tempArr = []
             snapshot.docs.forEach((doc) => {
                 if (doc.data().ready) {
@@ -152,7 +211,9 @@ const ReadyToGo = ({ navigation, route }) => {
                         userId: doc.data().userId,
                         distance: doc.data().distance,
                         name: doc.data().userName,
-                        heading: doc.data().heading
+                        heading: doc.data().heading,
+                        color: doc.data().color,
+                        eta: doc.data().eta
                     }
                     tempArr.push(coordsForDoc)
                 }
@@ -185,18 +246,7 @@ const ReadyToGo = ({ navigation, route }) => {
                         tempArr.push(coordsForDoc)
                     }
                 })
-                if (locationUnsubscribe.current != undefined) {
-                    locationUnsubscribe.current()
-                }
-                if (groupUnsubscribe.current != undefined) {
-                    groupUnsubscribe.current()
-                }
-                if (coordsUnsubscribe.current != undefined) {
-                    coordsUnsubscribe.current()
-                }
-                if (navigationUnsubscribe.current != undefined) {
-                    navigationUnsubscribe.current()
-                }
+                unsubscribeAll()
                 setTimeout(() => {
                     setLoading(false)
                     navigation.navigate("navigation", {
@@ -243,10 +293,12 @@ const ReadyToGo = ({ navigation, route }) => {
     }
 
     const confirmReady = async () => {
+        let randColor = colors[Math.floor(Math.random() * colors.length)];
         await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
             ready: true,
             latitude: route.params.userCoords.latitude,
-            longitude: route.params.userCoords.longitude
+            longitude: route.params.userCoords.longitude,
+            color: randColor
         }, {
             merge: true
         })
@@ -267,6 +319,9 @@ const ReadyToGo = ({ navigation, route }) => {
 
         await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
             ready: false,
+            color: "",
+            eta: "",
+            distance: ""
         }, {
             merge: true
         })
@@ -282,13 +337,16 @@ const ReadyToGo = ({ navigation, route }) => {
 
     const setLocation = async (details) => {
         setLocationAddress(details.formatted_address)
+        setPlaceId(details.place_id)
         await db.collection("groups").doc(route.params.groupId).set({
             goingTolatitude: details.geometry.location.lat,
             goingTolongitude: details.geometry.location.lng,
-            locationAddress: details.formatted_address
+            locationAddress: details.formatted_address,
+            placeId: details.place_id
         }, {
             merge: true
         })
+        updateInfoQuick(details.place_id)
     }
 
     const startNavigation = async () => {
@@ -326,36 +384,6 @@ const ReadyToGo = ({ navigation, route }) => {
 
     return (
         <View style={tw`flex-1`}>
-            {/* <SafeAreaView style={tw`bg-green-100`}>
-                <View style={tw`flex-row justify-between px-4 items-center pb-4 rounded-b-2xl bg-black`}>
-                    <View style={tw`flex-row content-center items-center`}>
-                        <TouchableOpacity style={tw`py-2`} onPress={() => {
-                            cancelReady()
-                            setTimeout(() => {
-                                navigation.goBack()
-                            }, 50)
-                        }
-                        }>
-                        <FontAwesome5 name='arrow-left' size={24} color="white" />
-                        </TouchableOpacity>
-                        
-                        <Text style={tw`text-2xl text-white font-semibold pl-3`}>{route.params.groupName.toUpperCase()}</Text>
-                    </View>
-                    <TouchableOpacity style={tw`py-2`} onPress={() => {
-                        unsubscribeAll()
-                        navigation.navigate("addTo", {
-                            groupName: route.params.groupName,
-                            groupId: route.params.groupId,
-                            userCoords: route.params.userCoords,
-                            groupOwner: route.params.groupOwner
-                        })
-                    }
-                    }>
-                        <FontAwesome5 name='plus' size={24} color="white" />
-                    </TouchableOpacity>
-                </View>
-            </SafeAreaView> */}
-
             <View style={tw`h-full flex-1`}>
                 <View style={tw`flex-1 relative`}>
                     <MapView
@@ -371,28 +399,102 @@ const ReadyToGo = ({ navigation, route }) => {
                                         longitude: marker.longitude
                                     }
                                     return (
-                                    //     <Marker
-                                    //     coordinate={startCoords}
-                                    // >
-                                    //     <Image
-                                    //         source={car}
-                                    //         style={{ width: 30, height: 32, transform: [{
-                                    //             rotate:`${heading}deg`
-                                    //         }]}}
-                                    //         resizeMode="contain"
-                                    //     />
-                                    // </Marker>
                                         <Marker
+                                            tracksInfoWindowChanges={true}
+                                            tracksViewChanges={true}
                                             key={marker.userId}
                                             coordinate={coordIn}
                                         >
-                                            <Image
-                                                source={car}
-                                                style={{ width: 30, height: 32, transform: [{
-                                                    rotate:`${marker.heading}deg`
-                                                }] }}
-                                                resizeMode="contain"
-                                            />
+                                            {
+                                                marker.color &&
+                                                <Svg>
+                                                    {
+                                                        marker.color == "grey" &&
+                                                        <Image
+                                                            source={greycar}
+                                                            style={{
+                                                                height: 40, transform: [{
+                                                                    rotate: `${marker.heading}deg`
+                                                                }]
+                                                            }}
+                                                            resizeMode="contain"
+                                                        />
+                                                    }
+                                                    {
+                                                        marker.color == "red" &&
+                                                        <Image
+                                                            source={redcar}
+                                                            style={{
+                                                                height: 40, transform: [{
+                                                                    rotate: `${marker.heading}deg`
+                                                                }]
+                                                            }}
+                                                            resizeMode="contain"
+                                                        />
+                                                    }
+                                                    {
+                                                        marker.color == "blue" &&
+                                                        <Image
+                                                            source={bluecar}
+                                                            style={{
+                                                                height: 40, transform: [{
+                                                                    rotate: `${marker.heading}deg`
+                                                                }]
+                                                            }}
+                                                            resizeMode="contain"
+                                                        />
+                                                    }
+                                                    {
+                                                        marker.color == "green" &&
+                                                        <Image
+                                                            source={greencar}
+                                                            style={{
+                                                                height: 40, transform: [{
+                                                                    rotate: `${marker.heading}deg`
+                                                                }]
+                                                            }}
+                                                            resizeMode="contain"
+                                                        />
+                                                    }
+                                                    {
+                                                        marker.color == "skyblue" &&
+                                                        <Image
+                                                            source={skybluecar}
+                                                            style={{
+                                                                height: 40, transform: [{
+                                                                    rotate: `${marker.heading}deg`
+                                                                }]
+                                                            }}
+                                                            resizeMode="contain"
+                                                        />
+                                                    }
+                                                    {
+                                                        marker.color == "pink" &&
+                                                        <Image
+                                                            source={pinkcar}
+                                                            style={{
+                                                                height: 40, transform: [{
+                                                                    rotate: `${marker.heading}deg`
+                                                                }]
+                                                            }}
+                                                            resizeMode="contain"
+                                                        />
+                                                    }
+                                                    {
+                                                        marker.color == "yellow" &&
+                                                        <Image
+                                                            source={yellowcar}
+                                                            style={{
+                                                                height: 40, transform: [{
+                                                                    rotate: `${marker.heading}deg`
+                                                                }]
+                                                            }}
+                                                            resizeMode="contain"
+                                                        />
+                                                    }
+                                                </Svg>
+
+                                            }
                                             <Callout tooltip>
                                                 <View style={tw`bg-white p-2 rounded-lg`}>
                                                     <Text>{marker.name}</Text>
@@ -412,6 +514,9 @@ const ReadyToGo = ({ navigation, route }) => {
                             <Marker
                                 coordinate={goingToCoords}
                             />
+                        }
+                        {
+                            console.log("POINTS: " + groupUserStartPoints.length + " GOING: " + goingToCoords)
                         }
                         {
                             goingToCoords != null &&
@@ -438,8 +543,8 @@ const ReadyToGo = ({ navigation, route }) => {
 
                 <View style={tw`absolute flex justify-between h-full w-full`}
                     pointerEvents="box-none">
-                    <SafeAreaView style={tw`w-full bg-black rounded-b-3xl`}>
-                        <View style={tw`flex-row justify-between px-4 items-center pb-4 rounded-b-3xl bg-black`}>
+                    <SafeAreaView style={tw`w-full bg-yellow-400 rounded-b-3xl shadow-md`}>
+                        <View style={tw`flex-row justify-between px-4 items-center pb-4 rounded-b-3xl bg-yellow-400`}>
                             <View style={tw`flex-row content-center items-center`}>
                                 <TouchableOpacity style={tw`py-2`} onPress={() => {
                                     cancelReady()
@@ -448,10 +553,10 @@ const ReadyToGo = ({ navigation, route }) => {
                                     }, 50)
                                 }
                                 }>
-                                    <FontAwesome5 name='arrow-left' size={24} color="white" />
+                                    <FontAwesome5 name='arrow-left' size={24} color="black" />
                                 </TouchableOpacity>
 
-                                <Text style={tw`text-2xl text-white font-semibold pl-3`}>{route.params.groupName.toUpperCase()}</Text>
+                                <Text style={tw`text-2xl text-black font-semibold pl-3`}>{route.params.groupName.toUpperCase()}</Text>
                             </View>
                             <TouchableOpacity style={tw`py-2`} onPress={() => {
                                 unsubscribeAll()
@@ -463,7 +568,7 @@ const ReadyToGo = ({ navigation, route }) => {
                                 })
                             }
                             }>
-                                <FontAwesome5 name='plus' size={24} color="white" />
+                                <FontAwesome5 name='plus' size={24} color="black" />
                             </TouchableOpacity>
                         </View>
                     </SafeAreaView>
@@ -501,17 +606,16 @@ const ReadyToGo = ({ navigation, route }) => {
                             </View> :
                             <View style={tw`flex-1`} pointerEvents='none'></View>
                     }
-
                     <View style={tw`flex-1`}>
-                        <View style={tw`bg-white flex-1 rounded-t-3xl`}>
+                        <View style={tw`bg-white flex-1 rounded-t-3xl shadow-md`}>
                             <View style={tw`p-4 flex-1 flex`}>
                                 {
                                     goingToCoords != null && route.params.groupOwner && ready &&
-                                    <View style={tw`flex mt-2`}>
-                                        <TouchableOpacity style={tw`p-4 bg-black rounded`} onPress={() => {
+                                    <View style={tw`flex`}>
+                                        <TouchableOpacity style={tw`p-4 bg-yellow-400 rounded-xl`} onPress={() => {
                                             startNavigation()
                                         }}>
-                                            <Text style={tw`font-semibold text-lg text-center text-white`}>Start Navigation</Text>
+                                            <Text style={tw`font-semibold text-lg text-center text-black`}>Start Navigation</Text>
                                         </TouchableOpacity>
                                     </View>
 
@@ -533,28 +637,89 @@ const ReadyToGo = ({ navigation, route }) => {
                                                         numColumns={4}
                                                         renderItem={({ item }) => (
                                                             <View style={tw`m-3 flex items-center`}>
+                                                                <View style={tw`items-center justify-center rounded-full w-16 h-16 mb-1 bg-black shadow-lg`}>
+                                                                    {
+                                                                        item.ready ?
+                                                                            <View style={tw`items-center justify-center rounded-full w-12 h-12 bg-black`}>
+                                                                                {
+                                                                                    item.color == "grey" &&
+                                                                                    <Image
+                                                                                        source={greycar}
+                                                                                        style={styles.image}
+                                                                                        resizeMode="contain"
+                                                                                    />
+                                                                                }
+                                                                                {
+                                                                                    item.color == "red" &&
+                                                                                    <Image
+                                                                                        source={redcar}
+                                                                                        style={styles.image}
+                                                                                        resizeMode="contain"
+                                                                                    />
+                                                                                }
+                                                                                {
+                                                                                    item.color == "blue" &&
+                                                                                    <Image
+                                                                                        source={bluecar}
+                                                                                        style={styles.image}
+                                                                                        resizeMode="contain"
+                                                                                    />
+                                                                                }
+                                                                                {
+                                                                                    item.color == "green" &&
+                                                                                    <Image
+                                                                                        source={greencar}
+                                                                                        style={styles.image}
+                                                                                        resizeMode="contain"
+                                                                                    />
+                                                                                }
+                                                                                {
+                                                                                    item.color == "skyblue" &&
+                                                                                    <Image
+                                                                                        source={skybluecar}
+                                                                                        style={styles.image}
+                                                                                        resizeMode="contain"
+                                                                                    />
+                                                                                }
+                                                                                {
+                                                                                    item.color == "pink" &&
+                                                                                    <Image
+                                                                                        source={pinkcar}
+                                                                                        style={styles.image}
+                                                                                        resizeMode="contain"
+                                                                                    />
+                                                                                }
+                                                                                {
+                                                                                    item.color == "yellow" &&
+                                                                                    <Image
+                                                                                        source={yellowcar}
+                                                                                        style={styles.image}
+                                                                                        resizeMode="contain"
+                                                                                    />
+                                                                                }
+                                                                            </View>
+                                                                            :
+                                                                            <View>
+                                                                                <ActivityIndicator color="#fff" animating={!item.ready} />
+                                                                            </View>
+                                                                    }
+
+                                                                </View>
                                                                 {
-                                                                    item.ready ?
-                                                                        <View style={tw`items-center justify-center rounded-full w-16 h-16 mb-1 bg-green-300`}>
-                                                                            <MaterialCommunityIcons name="human" size={24} color="black" />
-                                                                        </View>
-                                                                        :
-                                                                        <View style={tw`items-center justify-center rounded-full w-16 h-16 mb-1 bg-red-300`}>
-                                                                            <MaterialCommunityIcons name="human" size={24} color="black" />
-                                                                        </View>
+                                                                    item.userName !== undefined &&
+                                                                    <Text style={tw`uppercase text-center`}>{item.userName.slice(0, 4)}</Text>
                                                                 }
-                                                                <Text style={tw`uppercase text-center`}>{item.userName.slice(0, 5)}</Text>
                                                             </View>
                                                         )}
                                                     />
                                                     :
                                                     <View style={tw`flex items-center`}>
                                                         <View style={tw`flex-row items-center h-52`}>
-                                                            <TouchableOpacity style={tw`bg-black py-4 px-14 rounded-lg`} onPress={() => {
+                                                            <TouchableOpacity style={tw`bg-yellow-400 py-4 px-14 rounded-lg shadow-lg`} onPress={() => {
                                                                 setReady(true)
                                                                 confirmReady()
                                                             }}>
-                                                                <Text style={tw`text-xl text-white font-semibold`}>I'm ready!</Text>
+                                                                <Text style={tw`text-xl text-black font-semibold`}>I'm ready!</Text>
                                                             </TouchableOpacity>
                                                         </View>
                                                     </View>
@@ -579,3 +744,11 @@ const ReadyToGo = ({ navigation, route }) => {
     )
 }
 export default ReadyToGo
+
+const styles = StyleSheet.create({
+    image: {
+        width: '100%',
+        height: undefined,
+        aspectRatio: 1,
+    }
+})

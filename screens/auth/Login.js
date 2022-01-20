@@ -9,7 +9,9 @@ const Login = ({ navigation }) => {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        return auth.onAuthStateChanged(function(user) {
+        auth.onAuthStateChanged(function(user) {
+            console.log("AEFIUHAEF")
+            console.log(user)
             if (user) {
                 navigation.navigate("home")
             } else {
@@ -43,7 +45,6 @@ const Login = ({ navigation }) => {
                                     userName: res.user.displayName,
                                     userEmail: res.user.email
                                 })
-                            alert(email)
                         })
                 } else {
                     alert("Sign in not successful")
@@ -56,9 +57,8 @@ const Login = ({ navigation }) => {
     }
 
     return (
-        <SafeAreaView style={[tw`bg-yellow-400 h-full`]}>
-            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={tw`flex-1`}>
+        <SafeAreaView style={[tw`bg-white h-full`]}>
+            <View style={tw`flex-1`}>
                 <View style={[tw`m-auto flex items-center`]}>
                     <Text style={[tw`text-black text-3xl font-semibold mb-4`]}>Login to your account</Text>
                     {
@@ -67,7 +67,7 @@ const Login = ({ navigation }) => {
                                 <ActivityIndicator color="#000" animating={loading} />
                             </TouchableOpacity>
                             :
-                            <TouchableOpacity style={[tw`flex-row p-2.5 bg-white rounded-xl w-80 border-2 border-black justify-between mb-2 px-14`]} onPress={() => { handleGoogleLogin() }}>
+                            <TouchableOpacity style={[tw`flex-row p-2.5 bg-yellow-400 rounded-xl w-80 shadow-lg justify-between mb-2 px-14`]} onPress={() => { handleGoogleLogin() }}>
                                 <Image source={require('../../assets/login_Img/google.png')} />
                                 <Text style={[tw`text-black text-lg text-center`]}>
                                     Sign in with Google
@@ -82,11 +82,11 @@ const Login = ({ navigation }) => {
                                 navigation.navigate("signup")
                             }
                         }}>
-                            <Text style={[tw`mr-2 text-lg text-blue-600`]}>Signup here!</Text>
+                            <Text style={[tw`mr-2 text-lg text-blue-600 text-yellow-400`]}>Signup here!</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
-            </KeyboardAvoidingView>
+            </View>
 
         </SafeAreaView>
 

@@ -8,7 +8,9 @@ import * as Location from 'expo-location';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { auth, db } from '../../config/firebaseConfig';
 import { ActivityIndicator } from 'react-native';
-import car from "../../assets/cars/car.png"
+import car from "../../assets/cars/greycar.png"
+import Svg from 'react-native-svg';
+import groupcar from "../../assets/cars/groupcar.png"
 
 const Home = ({ navigation }) => {
 
@@ -38,7 +40,10 @@ const Home = ({ navigation }) => {
                 return;
             }
             console.log("NOW HERE TOO")
-            let location = await Location.getCurrentPositionAsync();
+            let location = await Location.getCurrentPositionAsync({
+                maximumAge: Platform.OS === "android" && 60000, // only for Android
+                accuracy: Platform.OS === "android" ? Location.Accuracy.Low : Location.Accuracy.Lowest,
+            });
             console.log("GOT THE LOCATION")
             console.log(location)
             let coords = {
@@ -127,13 +132,17 @@ const Home = ({ navigation }) => {
                                     <Marker
                                         coordinate={startCoords}
                                     >
-                                        <Image
-                                            source={car}
-                                            style={{ width: 30, height: 32, transform: [{
-                                                rotate:`${heading}deg`
-                                            }]}}
-                                            resizeMode="contain"
-                                        />
+                                        <Svg>
+                                            <Image
+                                                source={car}
+                                                style={{
+                                                    height: 40, transform: [{
+                                                        rotate: `${heading}deg`
+                                                    }]
+                                                }}
+                                                resizeMode='contain'
+                                            />
+                                        </Svg>
                                     </Marker>
                                 }
 
@@ -142,11 +151,20 @@ const Home = ({ navigation }) => {
                         <View style={tw`absolute w-full h-full flex justify-between flex-1`} pointerEvents='box-none'>
                             <SafeAreaView style={tw`flex-row justify-between mx-4 ${Platform.OS === "android" && "mt-2"}`}>
                                 <View></View>
-                                <TouchableOpacity style={tw`bg-black p-2 rounded-full`} onPress={() => { navigateToRequests() }}>
-                                    <FontAwesome5 name="bell" size={24} color="white" />
-                                </TouchableOpacity>
+                                <View style={tw`flex-row bg-yellow-400 rounded-full p-1 shadow-xl`}>
+                                    <TouchableOpacity style={tw`px-2 py-1 mr-1 rounded-full`} onPress={() => { navigateToRequests() }}>
+                                        <FontAwesome5 name="bell" size={26} color="black" />
+                                    </TouchableOpacity>
+                                    <View style={tw`h-full w-px bg-black`} />
+                                    <View style={tw`h-full w-px bg-black`} />
+                                    <View style={tw`h-full w-px bg-black`} />
+                                    <TouchableOpacity style={tw`px-2 py-1 ml-1 rounded-full`} onPress={() => { }}>
+                                        <FontAwesome5 name="cog" size={26} color="black" />
+                                    </TouchableOpacity>
+                                </View>
+
                             </SafeAreaView>
-                            <View style={tw`h-2/5 rounded-t-3xl bg-white w-full`}>
+                            <View style={tw`h-2/5 rounded-t-3xl bg-white w-full shadow-md`}>
                                 <View style={tw`flex-1`}>
                                     <Text style={tw`font-semibold text-3xl mb-2 mt-4 text-center`}>Groups</Text>
 
@@ -161,9 +179,10 @@ const Home = ({ navigation }) => {
                                             <View style={tw`p-3`}>
                                                 {
                                                     item.groupId !== 1 ?
-                                                        <View style={tw`flex items-center`}>
-                                                            <TouchableOpacity style={tw`items-center justify-center rounded-full w-16 h-16 bg-red-400 mb-1`}
-                                                                onPress={() => {
+                                                        <View>
+                                                            <View style={tw`items-center justify-center rounded-full w-16 h-16 mb-1 bg-black shadow-lg`}>
+
+                                                                <TouchableOpacity style={tw`items-center justify-center rounded-full w-10 h-10 bg-black`} onPress={() => {
                                                                     if (groupsUnsubscribe.current != undefined) {
                                                                         groupsUnsubscribe.current()
                                                                     }
@@ -174,20 +193,26 @@ const Home = ({ navigation }) => {
                                                                         userCoords: startCoords,
                                                                     })
                                                                 }}>
-                                                                <FontAwesome5 name="user-friends" size={24} color="black" />
-                                                            </TouchableOpacity>
+
+                                                                    <Image
+                                                                        source={groupcar}
+                                                                        style={styles.image}
+                                                                        resizeMode="contain"
+                                                                    />
+                                                                </TouchableOpacity>
+                                                            </View>
                                                             <Text style={tw`uppercase text-center`}>{item.groupName.slice(0, 5)}</Text>
                                                         </View>
                                                         :
                                                         <View>
-                                                            <TouchableOpacity style={tw`items-center justify-center rounded-full w-16 h-16 bg-black`}
+                                                            <TouchableOpacity style={tw`items-center justify-center rounded-full w-16 h-16 bg-yellow-400 shadow-lg`}
                                                                 onPress={() => {
                                                                     if (groupsUnsubscribe.current != undefined) {
                                                                         groupsUnsubscribe.current()
                                                                     }
                                                                     navigation.navigate("add")
                                                                 }}>
-                                                                <FontAwesome5 name="plus" size={24} color="white" />
+                                                                <FontAwesome5 name="plus" size={24} color="black" />
                                                             </TouchableOpacity>
                                                         </View>
                                                 }
@@ -228,6 +253,11 @@ const styles = StyleSheet.create({
     },
     AndroidSafeArea: {
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+    },
+    image: {
+        width: '100%',
+        height: undefined,
+        aspectRatio: 1,
     }
 });
 

@@ -44,12 +44,12 @@ const Signup = ({ navigation }) => {
     }
 
     return (
-        <SafeAreaView style={[tw`bg-yellow-400 h-full`]}>
+        <SafeAreaView style={[tw`bg-white h-full`]}>
             <View style={tw`flex-1`}>
                 <View style={[tw`m-auto flex items-center`]}>
                     <Text style={[tw`text-black text-3xl font-semibold mb-4`]}>Create your account</Text>
                     
-                    <TouchableOpacity style={[tw`flex flex-row p-2.5 bg-white rounded-xl w-80 mt-2 border-2 border-black justify-between px-14 mb-2`]} onPress={() => { handleGoogleSignup() }}>
+                    <TouchableOpacity style={[tw`flex flex-row p-2.5 bg-yellow-400 rounded-xl w-80 mt-2 shadow-lg justify-between px-14 mb-2`]} onPress={() => { handleGoogleSignup() }}>
                         <Image source={require('../../assets/login_Img/google.png')} />
                         <Text style={[tw`text-black text-lg`]}>
                             Sign up with Google
@@ -58,7 +58,7 @@ const Signup = ({ navigation }) => {
                     <View style={[tw`flex flex-row`]}>
                         <Text style={[tw`mr-2 text-lg`]}>Already have an account?</Text>
                         <TouchableOpacity onPress={() => { navigation.navigate("login") }}>
-                            <Text style={[tw`mr-2 text-lg text-blue-600`]}>Login here!</Text>
+                            <Text style={[tw`mr-2 text-lg text-yellow-400`]}>Login here!</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
