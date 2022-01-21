@@ -1,0 +1,49 @@
+Date : 2022-01-19 23:43:28
+Directory : /Users/sakshamgupta/Desktop/Tailgate
+Total : 17 files,  2243 codes, 45 comments, 195 blanks, all 2483 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| JavaScript |         13 |      2,178 |         29 |        193 |      2,400 |
+| JSON       |          3 |         64 |         16 |          2 |         82 |
+| Markdown   |          1 |          1 |          0 |          0 |          1 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                            | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                               |         17 |      2,243 |         45 |        195 |      2,483 |
+| .expo-shared                                                    |          1 |          4 |          0 |          1 |          5 |
+| components                                                      |          1 |         20 |          0 |          2 |         22 |
+| config                                                          |          1 |         20 |          0 |          5 |         25 |
+| screens                                                         |          9 |      2,041 |         29 |        170 |      2,240 |
+| screens/auth                                                    |          3 |        273 |          5 |         40 |        318 |
+| screens/main                                                    |          6 |      1,768 |         24 |        130 |      1,922 |
++-----------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                        | language   | code       | comment    | blank      | total      |
++-----------------------------------------------------------------+------------+------------+------------+------------+------------+
+| /Users/sakshamgupta/Desktop/Tailgate/.expo-shared/assets.json   | JSON       |          4 |          0 |          1 |          5 |
+| /Users/sakshamgupta/Desktop/Tailgate/App.js                     | JavaScript |         91 |          0 |         15 |        106 |
+| /Users/sakshamgupta/Desktop/Tailgate/README.md                  | Markdown   |          1 |          0 |          0 |          1 |
+| /Users/sakshamgupta/Desktop/Tailgate/app.json                   | JSON       |         17 |         16 |          0 |         33 |
+| /Users/sakshamgupta/Desktop/Tailgate/babel.config.js            | JavaScript |          6 |          0 |          1 |          7 |
+| /Users/sakshamgupta/Desktop/Tailgate/components/Map.js          | JavaScript |         20 |          0 |          2 |         22 |
+| /Users/sakshamgupta/Desktop/Tailgate/config/firebaseConfig.js   | JavaScript |         20 |          0 |          5 |         25 |
+| /Users/sakshamgupta/Desktop/Tailgate/package.json               | JSON       |         43 |          0 |          1 |         44 |
+| /Users/sakshamgupta/Desktop/Tailgate/screens/auth/Login.js      | JavaScript |         89 |          4 |         12 |        105 |
+| /Users/sakshamgupta/Desktop/Tailgate/screens/auth/Settings.js   | JavaScript |        121 |          0 |         19 |        140 |
+| /Users/sakshamgupta/Desktop/Tailgate/screens/auth/Signup.js     | JavaScript |         63 |          1 |          9 |         73 |
+| /Users/sakshamgupta/Desktop/Tailgate/screens/main/AddGroup.js   | JavaScript |        148 |          0 |         16 |        164 |
+| /Users/sakshamgupta/Desktop/Tailgate/screens/main/AddToGroup.js | JavaScript |        146 |          0 |         11 |        157 |
+| /Users/sakshamgupta/Desktop/Tailgate/screens/main/Home.js       | JavaScript |        226 |          8 |         29 |        263 |
+| /Users/sakshamgupta/Desktop/Tailgate/screens/main/Navigation.js | JavaScript |        453 |          3 |         24 |        480 |
+| /Users/sakshamgupta/Desktop/Tailgate/screens/main/ReadyToGo.js  | JavaScript |        701 |         13 |         40 |        754 |
+| /Users/sakshamgupta/Desktop/Tailgate/screens/main/Requests.js   | JavaScript |         94 |          0 |         10 |        104 |
+| Total                                                           |            |      2,243 |         45 |        195 |      2,483 |
++-----------------------------------------------------------------+------------+------------+------------+------------+------------+

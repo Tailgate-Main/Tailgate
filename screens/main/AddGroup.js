@@ -19,7 +19,7 @@ const AddGroup = ({ navigation, route }) => {
         groupMembers.map((val) => {
             tempArr.push(val)
         })
-        tempArr.push(e)
+        tempArr.push(e.toLowerCase())
         setGroupMembers(tempArr)
     }
 
@@ -51,7 +51,7 @@ const AddGroup = ({ navigation, route }) => {
                     groupName: groupName,
                     groupOwnerName: auth.currentUser.displayName,
                     groupOwner: auth.currentUser.uid,
-                    userEmail: val
+                    userEmail: val.toLowerCase()
                 })
             })
 
@@ -87,11 +87,11 @@ const AddGroup = ({ navigation, route }) => {
                             </View>
                             {
                                 loading ?
-                                    <View style={tw`bg-yellow-400 h-14 w-14 flex-row justify-center items-center rounded-full`}>
+                                    <View style={tw`bg-yellow-400 h-14 w-14 flex-row justify-center items-center rounded-full shadow-md`}>
                                         <ActivityIndicator color="#000" animating={loading} />
                                     </View>
                                     :
-                                    <TouchableOpacity style={tw`bg-yellow-400 flex-row justify-center items-center h-14 w-14 rounded-full`} onPress={() => {
+                                    <TouchableOpacity style={tw`bg-yellow-400 flex-row justify-center items-center h-14 w-14 rounded-full shadow-md`} onPress={() => {
                                         createGroup()
                                     }}>
                                         <FontAwesome5 name="check" size={24} color="black" />
@@ -100,7 +100,7 @@ const AddGroup = ({ navigation, route }) => {
 
                         </View>
                         <TextInput
-                            style={[tw`bg-white border-2 border-black rounded-xl w-full h-12 pl-2 pr-2 mb-4 mt-4`]}
+                            style={[tw`bg-white shadow-md rounded-xl w-full h-12 pl-2 pr-2 mb-4 mt-4 shadow-md`]}
                             placeholder="Group Name"
                             onChangeText={(e) => { setGroupName(e) }}
                             value={groupName}
@@ -112,18 +112,18 @@ const AddGroup = ({ navigation, route }) => {
                                         return (
                                             <View style={tw`flex-row items-center pb-4`} key={i}>
                                                 <TextInput
-                                                    style={[tw`bg-white border-2 border-black rounded-xl flex-1 pl-2 pr-2 h-12`]}
+                                                    style={[tw`bg-white rounded-xl flex-1 pl-2 pr-2 h-12 shadow-md`]}
                                                     value={val}
+                                                    autoCapitalize="none"
                                                     editable={false}
                                                 />
-                                                <TouchableOpacity style={tw`flex justify-center p-2 flex-1 bg-yellow-400 ml-2 rounded-lg`}
+                                                <TouchableOpacity style={tw`flex justify-center p-2 flex-1 bg-yellow-400 ml-2 rounded-lg shadow-md`}
                                                     onPress={() => {
                                                         handleDeleteMember(i)
                                                     }}>
                                                     <Text style={tw`text-black`}>Delete</Text>
                                                 </TouchableOpacity>
                                             </View>
-
                                         )
                                     })
                                 }
@@ -133,13 +133,13 @@ const AddGroup = ({ navigation, route }) => {
                     </View>
                     <View style={tw`w-full pb-4 pt-2`}>
                         <TextInput
-                            style={[tw`bg-white border-2 border-black rounded-xl pl-2 pr-2 h-12`]}
+                            style={[tw`bg-white shadow-md rounded-xl pl-2 pr-2 h-12`]}
                             placeholder="Member Email"
                             onChangeText={(e) => { setAddMember(e) }}
                             value={addMember}
                         />
                         <View style={tw`flex-row items-center justify-center mt-2`} >
-                            <TouchableOpacity style={tw`items-center justify-center flex rounded-full p-4 bg-yellow-400`} onPress={() => {
+                            <TouchableOpacity style={tw`items-center justify-center flex rounded-full p-4 bg-yellow-400 shadow-md`} onPress={() => {
                                 let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
                                 if (reg.test(addMember) === true) {
                                     if (addMember != auth.currentUser.email) {

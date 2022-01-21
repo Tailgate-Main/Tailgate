@@ -256,7 +256,8 @@ const ReadyToGo = ({ navigation, route }) => {
                         locationAddress: snapshot.data().locationAddress,
                         groupOwner: route.params.groupOwner,
                         groupName: route.params.groupName,
-                        userCoords: route.params.userCoords
+                        userCoords: route.params.userCoords,
+                        placeId: placeId
                     })
                 }, 500)
             }
@@ -367,6 +368,7 @@ const ReadyToGo = ({ navigation, route }) => {
                     groupOwner: route.params.groupOwner,
                     groupName: route.params.groupName,
                     userCoords: route.params.userCoords,
+                    placeId: placeId
                 })
             }, 100)
         } else {
@@ -378,6 +380,7 @@ const ReadyToGo = ({ navigation, route }) => {
                 groupOwner: route.params.groupOwner,
                 groupName: route.params.groupName,
                 userCoords: route.params.userCoords,
+                placeId: placeId
             })
         }
     }
@@ -700,7 +703,7 @@ const ReadyToGo = ({ navigation, route }) => {
                                                                             </View>
                                                                             :
                                                                             <View>
-                                                                                <ActivityIndicator color="#fff" animating={!item.ready} />
+                                                                                <ActivityIndicator color="#fde047" animating={!item.ready} />
                                                                             </View>
                                                                     }
 

@@ -9,8 +9,7 @@ import { auth, db } from '../../config/firebaseConfig'
 import { StyleSheet } from 'react-native'
 import * as Location from 'expo-location';
 import axios from 'axios'
-import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
-import Svg from 'react-native-svg';
+ import Svg from 'react-native-svg';
 import greycar from "../../assets/cars/greycar.png"
 import redcar from "../../assets/cars/redcar.png"
 import bluecar from "../../assets/cars/bluecar.png"
@@ -28,6 +27,8 @@ const Navigation = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [locationAddress, setLocationAddress] = useState("")
     const [initalPoints, setInitialPoints] = useState([])
+    const [placeId, setPlaceId] = useState("")
+
     // const [data, setData] = useState([])
 
     const [inNavigation, setInNavigation] = useState(true)
@@ -43,6 +44,7 @@ const Navigation = ({ navigation, route }) => {
         setLocationAddress(route.params.locationAddress)
         setGroupUserStartPoints(route.params.groupUserStartPoints)
         setGoingToCoords(route.params.goingToCoords)
+        setPlaceId(route.params.placeId)
     }, [])
 
     useEffect(() => {
@@ -93,8 +95,8 @@ const Navigation = ({ navigation, route }) => {
 
     const updateInformation = async () => {
         let location = await Location.getCurrentPositionAsync();
-
-        axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:ChIJqVJ3OCm0D4gRc9S7toT7_IY&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
+        if(placeId != ""){
+            axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeId}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
             .then(async (response) => {
                 console.log('getting data from axios', await response.data.rows[0].elements[0].distance);
                 if (await response.data) {
@@ -114,6 +116,7 @@ const Navigation = ({ navigation, route }) => {
             .catch(error => {
                 console.log(error);
             });
+        }
         timeoutId.current = setTimeout(() => { updateInformation() }, 20000)
     }
 
@@ -127,9 +130,11 @@ const Navigation = ({ navigation, route }) => {
                         latitude: parseFloat(snapshot.data().goingTolatitude),
                         longitude: parseFloat(snapshot.data().goingTolongitude)
                     })
+                    setPlaceId(snapshot.data().placeId)
                 } else {
                     setGoingToCoords(null)
                     setInNavigation(false)
+                    setPlaceId("")
                 }
             } else {
                 setGoingToCoords(null)
@@ -184,7 +189,10 @@ const Navigation = ({ navigation, route }) => {
                 goingTolatitude: "",
                 goingTolongitude: "",
                 inNavigation: false,
-                locationAddress: ""
+                locationAddress: "",
+                placeId: "",
+                distance: "",
+                eta: ""
             }, {
                 merge: true
             })
@@ -359,7 +367,7 @@ const Navigation = ({ navigation, route }) => {
             </View>
             <View style={tw`absolute flex justify-between h-full w-full flex-1`} pointerEvents='box-none'>
                 <View></View>
-                <View style={tw`bg-white pb-8 pt-4 pl-8 pr-8 rounded-t-3xl`}>
+                <View style={tw`bg-white shadow-md pb-8 pt-4 pl-8 pr-8 rounded-t-3xl`}>
                     <View>
                         <FlatList
                             horizontal={true}
@@ -372,7 +380,7 @@ const Navigation = ({ navigation, route }) => {
                                 <View style={tw`mr-3 flex items-center`}>
                                     {
                                         <View style={tw`items-center justify-center rounded-full w-12 h-12 mb-1 bg-black`}>
-                                            <View style={tw`items-center justify-center rounded-full w-8 h-8 bg-black`}>
+                                            <View style={tw`items-center justify-center rounded-full w-8 h-8 bg-black shadow-lg`}>
                                                 {
                                                     item.color == "grey" &&
                                                     <Image
@@ -448,13 +456,13 @@ const Navigation = ({ navigation, route }) => {
                         <View style={tw``}>
                             {
                                 !isLoading ?
-                                    <TouchableOpacity style={tw`bg-yellow-400 rounded-2xl h-16 w-24 items-center flex justify-center`} onPress={() => {
+                                    <TouchableOpacity style={tw`bg-yellow-400 rounded-2xl h-16 w-24 items-center flex justify-center shadow-lg`} onPress={() => {
                                         goBack()
                                     }}>
-                                        <Text style={tw`text-2xl text-white`}>Quit</Text>
+                                        <Text style={tw`text-2xl text-black`}>Quit</Text>
                                     </TouchableOpacity>
                                     :
-                                    <View style={tw`bg-yellow-400 rounded-2xl h-16 w-24 justify-center items-center`}>
+                                    <View style={tw`bg-yellow-400 rounded-2xl h-16 w-24 justify-center items-center shadow-lg`}>
                                         <ActivityIndicator animating={isLoading} color="#fff" />
                                     </View>
                             }
