@@ -45,11 +45,11 @@ const ReadyToGo = ({ navigation, route }) => {
 
     useEffect(() => {
         async function func() {
-            // updateInformation()
-            // getGroupStartCoords()
+            updateInformation()
+            getGroupStartCoords()
             // checkNavigation()
-            // getGroup()
-            // getLocation()
+            getGroup()
+            getLocation()
             getReady()
         }
         const unsubscribe = navigation.addListener('focus', () => {
@@ -57,8 +57,8 @@ const ReadyToGo = ({ navigation, route }) => {
             setGroupUserStartPoints([])
             setGoingToCoords(null)
             setReady(false)
-            func()
             setInitial.current = false
+            func()
         });
         return unsubscribe;
     }, [navigation]);
@@ -66,12 +66,14 @@ const ReadyToGo = ({ navigation, route }) => {
     useEffect(() => {
         if (ready) {
             updateInformation()
-            getGroupStartCoords()
-            checkNavigation()
-            getGroup()
-            getLocation()
+            // getGroupStartCoords()
+            // checkNavigation()
+            // getGroup()
+            // getLocation()
         } else {
-            unsubscribeAll()
+            if (timeoutId.current != undefined) {
+                clearTimeout(timeoutId.current)
+            }
         }
     }, [ready])
 
@@ -135,21 +137,14 @@ const ReadyToGo = ({ navigation, route }) => {
     }
 
     const updateInformation = async () => {
-        console.log("Updating information now")
-        console.log("STILL UPDATING")
-        console.log(timeoutId.current)
         let location = await Location.getCurrentPositionAsync({
             maximumAge: Platform.OS === "android" && 60000, // only for Android
             accuracy: Platform.OS === "android" ? Location.Accuracy.Low : Location.Accuracy.Lowest,
         });
-        console.log("HERE")
-        console.log(placeId)
         if (placeId != "") {
             axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeId}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
                 .then(async (response) => {
-                    console.log('getting data from axios', await response.data.rows[0].elements[0].distance);
                     if (await response.data) {
-                        console.log("NOW HERE ACTUALLY 2")
                         await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
                             latitude: location.coords.latitude,
                             longitude: location.coords.longitude,
@@ -167,7 +162,7 @@ const ReadyToGo = ({ navigation, route }) => {
                 });
         }
         timeoutId.current = setTimeout(() => { updateInformation() }, 20000)
-        
+
     }
 
     const updateInfoQuick = async (placeIdIn) => {
@@ -178,9 +173,7 @@ const ReadyToGo = ({ navigation, route }) => {
         if (placeIdIn != "") {
             axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeIdIn}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
                 .then(async (response) => {
-                    console.log('getting data from axios', await response.data.rows[0].elements[0].distance);
                     if (await response.data) {
-                        console.log("NOW HERE ACTUALLY 2")
                         await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
                             latitude: location.coords.latitude,
                             longitude: location.coords.longitude,
@@ -200,7 +193,6 @@ const ReadyToGo = ({ navigation, route }) => {
     }
 
     const getGroupStartCoords = () => {
-        setInitial.current = false
         coordsUnsubscribe.current = db.collection("accepted").where("groupId", "==", route.params.groupId).onSnapshot(snapshot => {
             var tempArr = []
             snapshot.docs.forEach((doc) => {
@@ -216,6 +208,7 @@ const ReadyToGo = ({ navigation, route }) => {
                         eta: doc.data().eta
                     }
                     tempArr.push(coordsForDoc)
+                    setInitial.current = false
                 }
             })
             setGroupUserStartPoints(tempArr)
@@ -228,7 +221,7 @@ const ReadyToGo = ({ navigation, route }) => {
 
     const checkNavigation = async () => {
         navigationUnsubscribe.current = db.collection("groups").doc(route.params.groupId).onSnapshot(async (snapshot) => {
-            if (snapshot.data().inNavigation) {
+            if (snapshot.data().isNavigating) {
                 let coords = null
                 coords = {
                     latitude: parseFloat(snapshot.data().goingTolatitude),
@@ -254,7 +247,6 @@ const ReadyToGo = ({ navigation, route }) => {
                         groupUserStartPoints: tempArr,
                         goingToCoords: coords,
                         locationAddress: snapshot.data().locationAddress,
-                        groupOwner: route.params.groupOwner,
                         groupName: route.params.groupName,
                         userCoords: route.params.userCoords,
                         placeId: placeId
@@ -326,22 +318,22 @@ const ReadyToGo = ({ navigation, route }) => {
         }, {
             merge: true
         })
-        if (route.params.groupOwner) {
-            await db.collection("groups").doc(route.params.groupId).set({
-                goingTolatitude: "",
-                goingTolongitude: ""
-            }, {
-                merge: true
-            })
-        }
+        // if (route.params.groupOwner) {
+        //     await db.collection("groups").doc(route.params.groupId).set({
+        //         goingTolatitude: "",
+        //         goingTolongitude: ""
+        //     }, {
+        //         merge: true
+        //     })
+        // }
     }
 
     const setLocation = async (details) => {
         setLocationAddress(details.formatted_address)
         setPlaceId(details.place_id)
         await db.collection("groups").doc(route.params.groupId).set({
-            goingTolatitude: details.geometry.location.lat,
-            goingTolongitude: details.geometry.location.lng,
+            goingTolatitude: details.geometry.location.lat.toString(),
+            goingTolongitude: details.geometry.location.lng.toString(),
             locationAddress: details.formatted_address,
             placeId: details.place_id
         }, {
@@ -353,36 +345,50 @@ const ReadyToGo = ({ navigation, route }) => {
     const startNavigation = async () => {
         unsubscribeAll()
 
-        if (route.params.groupOwner) {
-            await db.collection("groups").doc(route.params.groupId).set({
-                inNavigation: true
-            }, {
-                merge: true
-            })
-            setTimeout(() => {
-                navigation.navigate("navigation", {
-                    groupId: route.params.groupId,
-                    groupUserStartPoints: groupUserStartPoints,
-                    goingToCoords: goingToCoords,
-                    locationAddress: locationAddress,
-                    groupOwner: route.params.groupOwner,
-                    groupName: route.params.groupName,
-                    userCoords: route.params.userCoords,
-                    placeId: placeId
-                })
-            }, 100)
-        } else {
+        // if (route.params.groupOwner) {
+        //     await db.collection("groups").doc(route.params.groupId).set({
+        //         inNavigation: true
+        //     }, {
+        //         merge: true
+        //     })
+        //     setTimeout(() => {
+        //         navigation.navigate("navigation", {
+        //             groupId: route.params.groupId,
+        //             groupUserStartPoints: groupUserStartPoints,
+        //             goingToCoords: goingToCoords,
+        //             locationAddress: locationAddress,
+        //             groupOwner: route.params.groupOwner,
+        //             groupName: route.params.groupName,
+        //             userCoords: route.params.userCoords,
+        //             placeId: placeId
+        //         })
+        //     }, 100)
+        // } else {
+        //     navigation.navigate("navigation", {
+        //         groupId: route.params.groupId,
+        //         groupUserStartPoints: groupUserStartPoints,
+        //         goingToCoords: goingToCoords,
+        //         locationAddress: locationAddress,
+        //         groupOwner: route.params.groupOwner,
+        //         groupName: route.params.groupName,
+        //         userCoords: route.params.userCoords,
+        //         placeId: placeId
+        //     })
+        // }
+        await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
+            isNavigating: true
+        }, {
+            merge: true
+        })
+        setTimeout(() => {
             navigation.navigate("navigation", {
                 groupId: route.params.groupId,
-                groupUserStartPoints: groupUserStartPoints,
-                goingToCoords: goingToCoords,
-                locationAddress: locationAddress,
-                groupOwner: route.params.groupOwner,
                 groupName: route.params.groupName,
                 userCoords: route.params.userCoords,
+                goingToCoords: goingToCoords,
                 placeId: placeId
             })
-        }
+        }, 200)
     }
 
     return (
@@ -519,9 +525,6 @@ const ReadyToGo = ({ navigation, route }) => {
                             />
                         }
                         {
-                            console.log("POINTS: " + groupUserStartPoints.length + " GOING: " + goingToCoords)
-                        }
-                        {
                             goingToCoords != null &&
                             initalPoints.map((coords) => {
                                 return (
@@ -567,7 +570,6 @@ const ReadyToGo = ({ navigation, route }) => {
                                     groupName: route.params.groupName,
                                     groupId: route.params.groupId,
                                     userCoords: route.params.userCoords,
-                                    groupOwner: route.params.groupOwner
                                 })
                             }
                             }>
@@ -576,7 +578,7 @@ const ReadyToGo = ({ navigation, route }) => {
                         </View>
                     </SafeAreaView>
                     {
-                        route.params.groupOwner && ready ?
+                        ready ?
                             <View style={tw`flex-1 m-6`} pointerEvents='box-none' keyboardShouldPersistTaps="handled"
                             >
                                 <GooglePlacesAutocomplete
@@ -613,7 +615,7 @@ const ReadyToGo = ({ navigation, route }) => {
                         <View style={tw`bg-white flex-1 rounded-t-3xl shadow-md`}>
                             <View style={tw`p-4 flex-1 flex`}>
                                 {
-                                    goingToCoords != null && route.params.groupOwner && ready &&
+                                    goingToCoords != null && ready &&
                                     <View style={tw`flex`}>
                                         <TouchableOpacity style={tw`p-4 bg-yellow-400 rounded-xl`} onPress={() => {
                                             startNavigation()

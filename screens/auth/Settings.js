@@ -17,8 +17,6 @@ const Settings = ({ navigation }) => {
         setName(auth.currentUser.displayName)
         setEmail(auth.currentUser.email)
         getGroupData()
-        console.log("THE USER")
-        console.log(auth.currentUser)
     }, [auth.currentUser])
 
     const navigateBack = () => {
@@ -27,9 +25,7 @@ const Settings = ({ navigation }) => {
     }
 
     const unsubscribe = () => {
-        console.log(groupsUnsubscribe.current)
         if(groupsUnsubscribe.current != undefined){
-            console.log("hereree?")
             groupsUnsubscribe.current()
         }
     }

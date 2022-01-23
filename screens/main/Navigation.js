@@ -9,7 +9,7 @@ import { auth, db } from '../../config/firebaseConfig'
 import { StyleSheet } from 'react-native'
 import * as Location from 'expo-location';
 import axios from 'axios'
- import Svg from 'react-native-svg';
+import Svg from 'react-native-svg';
 import greycar from "../../assets/cars/greycar.png"
 import redcar from "../../assets/cars/redcar.png"
 import bluecar from "../../assets/cars/bluecar.png"
@@ -31,8 +31,6 @@ const Navigation = ({ navigation, route }) => {
 
     // const [data, setData] = useState([])
 
-    const [inNavigation, setInNavigation] = useState(true)
-
     const locationUnsubscribe = useRef()
     const coordsUnsubscribe = useRef()
     const timeoutId = useRef()
@@ -40,19 +38,19 @@ const Navigation = ({ navigation, route }) => {
     // const groupUnsubscribe = useRef()
 
     useEffect(() => {
-        console.log("WORKS HERE")
-        setLocationAddress(route.params.locationAddress)
-        setGroupUserStartPoints(route.params.groupUserStartPoints)
+        // setLocationAddress(route.params.locationAddress)
+        // setGroupUserStartPoints(route.params.groupUserStartPoints)
         setGoingToCoords(route.params.goingToCoords)
-        setPlaceId(route.params.placeId)
+        // setPlaceId(route.params.placeId)
+        getLocation()
+        getGroupStartCoords()
+        updateInformation()
+
     }, [])
 
     useEffect(() => {
-        console.log("GROUPUSERSTARTPOINTS")
-        if (groupUserStartPoints != null) {
+        if (groupUserStartPoints != null && goingToCoords != null) {
             let goingToTemp = goingToCoords
-            console.log("GOING TO TEMP")
-            console.log(goingToTemp)
             let tempArr = []
             groupUserStartPoints.forEach((coords) => {
                 tempArr.push(coords)
@@ -68,21 +66,22 @@ const Navigation = ({ navigation, route }) => {
                 animated: true,
             });
         }
-    }, [groupUserStartPoints])
+    }, [groupUserStartPoints, goingToCoords])
 
-    useEffect(() => {
-        console.log("INNAVIGATION")
-        if (inNavigation) {
-            getLocation()
-            getGroupStartCoords()
-            updateInformation()
-        } else {
-            unsubscribeAll()
-        }
-    }, [inNavigation])
+    // useEffect(() => {
+    //     console.log("INNAVIGATION")
+    //     if (inNavigation) {
+    //         getLocation()
+    //         getGroupStartCoords()
+    //         updateInformation()
+    //     } else {
+    //         unsubscribeAll()
+    //     }
+    // }, [inNavigation])
 
     const unsubscribeAll = () => {
         if (locationUnsubscribe.current != undefined) {
+        
             locationUnsubscribe.current()
         }
         if (coordsUnsubscribe.current != undefined) {
@@ -95,27 +94,25 @@ const Navigation = ({ navigation, route }) => {
 
     const updateInformation = async () => {
         let location = await Location.getCurrentPositionAsync();
-        if(placeId != ""){
+        if (placeId != "") {
             axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeId}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
-            .then(async (response) => {
-                console.log('getting data from axios', await response.data.rows[0].elements[0].distance);
-                if (await response.data) {
-                    console.log("NOW HERE ACTUALLY")
-                    await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
-                        latitude: location.coords.latitude,
-                        longitude: location.coords.longitude,
-                        eta: await response.data.rows[0].elements[0].duration.text,
-                        distance: await response.data.rows[0].elements[0].distance.text,
-                        heading: location.coords.heading
-                    }, {
-                        merge: true
-                    })
-                }
+                .then(async (response) => {
+                    if (await response.data) {
+                        await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
+                            latitude: location.coords.latitude,
+                            longitude: location.coords.longitude,
+                            eta: await response.data.rows[0].elements[0].duration.text,
+                            distance: await response.data.rows[0].elements[0].distance.text,
+                            heading: location.coords.heading
+                        }, {
+                            merge: true
+                        })
+                    }
 
-            })
-            .catch(error => {
-                console.log(error);
-            });
+                })
+                .catch(error => {
+                    console.log(error);
+                });
         }
         timeoutId.current = setTimeout(() => { updateInformation() }, 20000)
     }
@@ -131,25 +128,24 @@ const Navigation = ({ navigation, route }) => {
                         longitude: parseFloat(snapshot.data().goingTolongitude)
                     })
                     setPlaceId(snapshot.data().placeId)
+                    setLocationAddress(snapshot.data().locationAddress)
                 } else {
                     setGoingToCoords(null)
-                    setInNavigation(false)
+                    // setInNavigation(false)
                     setPlaceId("")
                 }
             } else {
                 setGoingToCoords(null)
-                setInNavigation(false)
+                // setInNavigation(false)
             }
         })
     }
 
     const getGroupStartCoords = () => {
-        setInitial.current = false
         coordsUnsubscribe.current = db.collection("accepted").where("groupId", "==", route.params.groupId).onSnapshot(snapshot => {
-            console.log("GROUP UNSUB")
             var tempArr = []
             snapshot.docs.forEach((doc) => {
-                if (doc.data().ready) {
+                if (doc.data().isNavigating) {
                     var coordsForDoc = {
                         latitude: parseFloat(doc.data().latitude),
                         longitude: parseFloat(doc.data().longitude),
@@ -159,9 +155,9 @@ const Navigation = ({ navigation, route }) => {
                         heading: doc.data().heading,
                         color: doc.data().color,
                         eta: doc.data().eta
-                        //TODO: ADD COLOR
                     }
                     tempArr.push(coordsForDoc)
+                    setInitial.current = false
                 }
             })
             setGroupUserStartPoints(tempArr)
@@ -175,40 +171,57 @@ const Navigation = ({ navigation, route }) => {
     const goBack = async () => {
         setIsLoading(true)
         unsubscribeAll()
-
-        if (route.params.groupOwner) {
-            setIsLoading(true)
-            await groupUserStartPoints.forEach((marker) => {
-                db.collection("accepted").doc(marker.userId + "-" + route.params.groupId).set({
-                    ready: false
-                }, {
-                    merge: true
+        if (groupUserStartPoints != null) {
+            if (groupUserStartPoints.length == 0) {
+                await db.collection("groups").doc(route.params.groupId).set({
+                    goingTolatitude: "",
+                    goingTolongitude: "",
+                    locationAddress: "",
+                    placeId: ""
                 })
-            })
-            await db.collection("groups").doc(route.params.groupId).set({
-                goingTolatitude: "",
-                goingTolongitude: "",
-                inNavigation: false,
-                locationAddress: "",
-                placeId: "",
-                distance: "",
-                eta: ""
-            }, {
-                merge: true
-            })
-        } else {
-            await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
-                ready: false
-            }, {
-                merge: true
-            })
+            }
         }
+
+
+        // if (route.params.groupOwner) {
+        //     setIsLoading(true)
+        //     // await groupUserStartPoints.forEach((marker) => {
+        //     //     db.collection("accepted").doc(marker.userId + "-" + route.params.groupId).set({
+        //     //         ready: false,
+        //     //         isNavigating: false
+        //     //     }, {
+        //     //         merge: true
+        //     //     })
+        //     // })
+        //     // await db.collection("groups").doc(route.params.groupId).set({
+        //     //     goingTolatitude: "",
+        //     //     goingTolongitude: "",
+        //     //     inNavigation: false,
+        //     //     locationAddress: "",
+        //     //     placeId: "",
+        //     //     distance: "",
+        //     //     eta: ""
+        //     // }, {
+        //     //     merge: true
+        //     // })
+        // } else {
+        //     await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
+        //         ready: false,
+        //         isNavigating: false
+        //     }, {
+        //         merge: true
+        //     })
+        // }
+        await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
+            ready: false,
+            isNavigating: false
+        }, {
+            merge: true
+        })
         setTimeout(() => {
             setIsLoading(false)
-            console.log(route.params.userCoords)
             navigation.navigate("readyToGo", {
                 groupId: route.params.groupId,
-                groupOwner: route.params.groupOwner,
                 userCoords: route.params.userCoords,
                 groupName: route.params.groupName
             })
@@ -463,7 +476,7 @@ const Navigation = ({ navigation, route }) => {
                                     </TouchableOpacity>
                                     :
                                     <View style={tw`bg-yellow-400 rounded-2xl h-16 w-24 justify-center items-center shadow-lg`}>
-                                        <ActivityIndicator animating={isLoading} color="#fff" />
+                                        <ActivityIndicator animating={isLoading} color="#000" />
                                     </View>
                             }
 

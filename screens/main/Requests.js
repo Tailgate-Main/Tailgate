@@ -41,6 +41,7 @@ const Requests = ({ navigation }) => {
                 ready: false,
                 userId: auth.currentUser.uid,
                 userName: auth.currentUser.displayName,
+                isNavigating: false
             })
         }, 500)
     }

@@ -33,22 +33,17 @@ const Home = ({ navigation }) => {
     useEffect(() => {
         (async () => {
             setLoading(true)
-            console.log("GOT HERE")
             let { status } = await Location.requestForegroundPermissionsAsync();
-            console.log("NOW HERE")
             if (status !== 'granted') {
                 setLocationAllowed(false)
                 setLoading(false)
                 setErrorMsg('Permission to access location was denied');
                 return;
             }
-            console.log("NOW HERE TOO")
             let location = await Location.getCurrentPositionAsync({
                 maximumAge: Platform.OS === "android" && 60000, // only for Android
                 accuracy: Platform.OS === "android" ? Location.Accuracy.Low : Location.Accuracy.Lowest,
             });
-            console.log("GOT THE LOCATION")
-            console.log(location)
             let coords = {
                 latitude: location.coords.latitude - 0.0005,
                 longitude: location.coords.longitude
@@ -130,9 +125,6 @@ const Home = ({ navigation }) => {
                                             style={tw`flex-1`}
                                             provider={PROVIDER_GOOGLE}
                                         >
-                                            {
-                                                console.log(heading)
-                                            }
                                             {
                                                 startCoords &&
                                                 <Marker

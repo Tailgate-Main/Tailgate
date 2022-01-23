@@ -11,7 +11,6 @@ const AddToGroup = ({ navigation, route }) => {
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        console.log(route.params.groupId)
         setGroupName(route.params.groupName)
     }, [])
 
@@ -42,7 +41,7 @@ const AddToGroup = ({ navigation, route }) => {
                     groupName: groupName,
                     groupOwnerName: auth.currentUser.displayName,
                     groupOwner: auth.currentUser.uid,
-                    userEmail: val
+                    userEmail: val.toLowerCase()
                 })
             })
             setTimeout(() => {
@@ -51,7 +50,6 @@ const AddToGroup = ({ navigation, route }) => {
                     groupName: route.params.groupName,
                     groupId: route.params.groupId,
                     userCoords: route.params.userCoords,
-                    groupOwner: route.params.groupOwner
                 })
             }, 500)
         }
@@ -69,7 +67,6 @@ const AddToGroup = ({ navigation, route }) => {
                                         groupName: route.params.groupName,
                                         groupId: route.params.groupId,
                                         userCoords: route.params.userCoords,
-                                        groupOwner: route.params.groupOwner
                                     })
                                 }}>
                                     <FontAwesome5 name="arrow-left" size={24} color="black" />

@@ -41,7 +41,6 @@ const AddGroup = ({ navigation, route }) => {
             await db.collection("groups").doc(id).set({
                 groupId: id,
                 groupOwner: auth.currentUser.uid,
-                inNavigation: false,
                 groupName: groupName
             })
 

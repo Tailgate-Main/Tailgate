@@ -3,7 +3,7 @@ import { View, Text, SafeAreaView, TouchableOpacity, Image, ActivityIndicator } 
 import { db, auth } from '../../config/firebaseConfig';
 import tw from "tailwind-react-native-classnames"
 import * as Google from "expo-google-app-auth"
-import firebase from 'firebase/compat';
+import firebase from 'firebase';
 
 const Login = ({ navigation }) => {
     const [loading, setLoading] = useState(true)
@@ -13,18 +13,43 @@ const Login = ({ navigation }) => {
     // }, []);
 
     useEffect(() => {
-        console.log("here")
-        auth.onAuthStateChanged(function (user) {
-            console.log("AEFIUHAEF")
-            console.log(user)
-            if (user) {
-                navigation.navigate("home")
-            } else {
-                // no user logged in. currentUser is null.
-            }
-            setLoading(false)
-        });
-    }, [navigation]);
+
+        async function func() {
+            auth.onAuthStateChanged(async (user) => {
+                if (user != null) {    
+                    await db.collection("users").doc(user.email).set(
+                        {
+                            userId: user.uid,
+                            userName: user.displayName,
+                            userEmail: user.email
+                        })
+                    setTimeout(() => {
+                        navigation.navigate("home")
+                    }, 200)
+    
+                } else {
+                    setLoading(false)
+    
+                }
+    
+                // Do other things
+            });
+        }
+        func()
+
+        
+        // firebase.auth().onAuthStateChanged(function (user) {
+        //     console.log("THE USER: " + user)
+        //     if (user) {
+        //         navigation.navigate("home")
+
+        //         // User is signed in.
+        //     } else {
+        //         setLoading(false)
+        //         // No user is signed in.
+        //     }
+        // });
+    }, []);
 
     const handleGoogleLogin = () => {
         const config = {
@@ -71,7 +96,7 @@ const Login = ({ navigation }) => {
                     <Text style={[tw`text-black text-3xl font-semibold mb-4`]}>Login to your account</Text>
                     {
                         loading ?
-                            <TouchableOpacity style={[tw`flex-row p-2.5 bg-white rounded-xl w-80 border-2 border-black justify-center h-14 mb-2`]} onPress={() => { handleGoogleLogin() }}>
+                            <TouchableOpacity style={[tw`flex-row p-2.5 bg-yellow-400  rounded-xl w-80 shadow-lg justify-center h-12 mb-2`]} onPress={() => { handleGoogleLogin() }}>
                                 <ActivityIndicator color="#000" animating={loading} />
                             </TouchableOpacity>
                             :
