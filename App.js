@@ -8,6 +8,7 @@ import ReadyToGo from './screens/main/ReadyToGo';
 import Navigation from "./screens/main/Navigation"
 import AddGroup from './screens/main/AddGroup';
 import Requests from './screens/main/Requests';
+import Chat from './screens/main/Chat';
 import { StatusBar, Platform } from 'react-native';
 import AddToGroup from './screens/main/AddToGroup';
 import Settings from './screens/auth/Settings';
@@ -64,6 +65,12 @@ function SettingsScreen({ navigation }){
     return <Settings navigation={navigation}/>
 }
 
+function ChatScreen({ navigation }){
+    return (
+        <ChatScreen navigation={navigation} />
+    )
+}
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -97,6 +104,8 @@ export default function App() {
                 <Stack.Screen name="addTo" component={AddToGroupScreen} options={{ gestureEnabled: false }}
                 />
                 <Stack.Screen name="settings" component={SettingsScreen} options={{ gestureEnabled: false }}
+                />
+                <Stack.Screen name="chat" component={ChatScreen} options={{ gestureEnabled: false }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

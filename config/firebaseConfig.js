@@ -1,6 +1,6 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
+import firebase from 'firebase';
+import 'firebase/auth';
+import 'firebase/firestore';
 
 const firebaseApp = firebase.initializeApp({
     apiKey: "AIzaSyAyFfXUcycavtmhxURQhAAd203uH4Pq0KE",
@@ -12,12 +12,14 @@ const firebaseApp = firebase.initializeApp({
     measurementId: "G-1X45H0Y44K"
 })
 
+// firebase.firestore().settings({
+// })
+
 const db = firebase.firestore()
 
 db.settings({
     timestampsInSnapshots: true,
-    merge: true,
-    experimentalForceLongPolling: true
+    merge: true
 })
 
 const auth = firebaseApp.auth()

@@ -3,7 +3,7 @@ import { View, Text, TextInput, SafeAreaView, TouchableOpacity, KeyboardAvoiding
 import tw from 'tailwind-react-native-classnames';
 import { auth, db } from '../../config/firebaseConfig';
 import * as Google from "expo-google-app-auth"
-import firebase from 'firebase/compat';
+import firebase from 'firebase';
 
 const Signup = ({ navigation }) => {
 

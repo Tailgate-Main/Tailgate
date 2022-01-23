@@ -11,7 +11,6 @@ const AddToGroup = ({ navigation, route }) => {
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        console.log(route.params.groupId)
         setGroupName(route.params.groupName)
     }, [])
 
@@ -20,7 +19,7 @@ const AddToGroup = ({ navigation, route }) => {
         groupMembers.map((val) => {
             tempArr.push(val)
         })
-        tempArr.push(e)
+        tempArr.push(e.toLowerCase())
         setGroupMembers(tempArr)
     }
 
@@ -42,7 +41,7 @@ const AddToGroup = ({ navigation, route }) => {
                     groupName: groupName,
                     groupOwnerName: auth.currentUser.displayName,
                     groupOwner: auth.currentUser.uid,
-                    userEmail: val
+                    userEmail: val.toLowerCase()
                 })
             })
             setTimeout(() => {
@@ -51,7 +50,6 @@ const AddToGroup = ({ navigation, route }) => {
                     groupName: route.params.groupName,
                     groupId: route.params.groupId,
                     userCoords: route.params.userCoords,
-                    groupOwner: route.params.groupOwner
                 })
             }, 500)
         }
@@ -69,7 +67,6 @@ const AddToGroup = ({ navigation, route }) => {
                                         groupName: route.params.groupName,
                                         groupId: route.params.groupId,
                                         userCoords: route.params.userCoords,
-                                        groupOwner: route.params.groupOwner
                                     })
                                 }}>
                                     <FontAwesome5 name="arrow-left" size={24} color="black" />
@@ -78,12 +75,12 @@ const AddToGroup = ({ navigation, route }) => {
                             </View>
                             {
                                 loading ?
-                                    <View style={tw`bg-yellow-400 p-4 rounded-full`}>
+                                    <View style={tw`bg-yellow-400 p-4 rounded-full shadow-md`}>
                                         <ActivityIndicator color="#000" animating={loading} />
                                     </View>
                                     :
 
-                                    <TouchableOpacity style={tw`bg-yellow-400 p-4 rounded-full`} onPress={() => {
+                                    <TouchableOpacity style={tw`bg-yellow-400 p-4 rounded-full shadow-md`} onPress={() => {
                                         sendRequests()
                                     }}>
                                         <FontAwesome5 name="check" size={24} color="black" />
@@ -92,7 +89,7 @@ const AddToGroup = ({ navigation, route }) => {
 
                         </View>
                         <TextInput
-                            style={[tw`bg-white border-2 border-black rounded-xl w-full h-12 pl-2 pr-2 mb-4 mt-4`]}
+                            style={[tw`bg-white shadow-md rounded-xl w-full h-12 pl-2 pr-2 mb-4 mt-4`]}
                             placeholder="Group Name"
                             editable={false}
                             value={groupName}
@@ -104,11 +101,11 @@ const AddToGroup = ({ navigation, route }) => {
                                         return (
                                             <View style={tw`flex-row items-center pb-4`} key={i}>
                                                 <TextInput
-                                                    style={[tw`bg-white border-2 border-black rounded-xl pl-2 pr-2 flex-1 h-12`]}
+                                                    style={[tw`bg-white shadow-md rounded-xl pl-2 pr-2 flex-1 h-12`]}
                                                     value={val}
                                                     editable={false}
                                                 />
-                                                <TouchableOpacity style={tw`ml-2`}
+                                                <TouchableOpacity style={tw`ml-2 shadow-md`}
                                                     onPress={() => {
                                                         handleDeleteMember(i)
                                                     }}>
@@ -126,13 +123,13 @@ const AddToGroup = ({ navigation, route }) => {
                     </View>
                     <View style={tw`w-full pb-4 pt-2`}>
                         <TextInput
-                            style={[tw`bg-white border-2 border-black rounded-xl pl-2 pr-2 h-12`]}
+                            style={[tw`bg-white shadow-md rounded-xl pl-2 pr-2 h-12`]}
                             placeholder="Member Email"
                             onChangeText={(e) => { setAddMember(e) }}
                             value={addMember}
                         />
                         <View style={tw`flex-row items-center justify-center mt-2`} >
-                            <TouchableOpacity style={tw`items-center justify-center flex rounded-full p-4 bg-yellow-400`} onPress={() => {
+                            <TouchableOpacity style={tw`items-center justify-center flex rounded-full p-4 bg-yellow-400 shadow-md`} onPress={() => {
                                 let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
                                 if (reg.test(addMember) === true) {
                                     if (addMember != auth.currentUser.email) {
