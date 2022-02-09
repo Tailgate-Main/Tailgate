@@ -33,40 +33,45 @@ const AddGroup = ({ navigation, route }) => {
     }
 
     const createGroup = async () => {
-        if (groupName != "" && groupMembers.length !== 0) {
-            setLoading(true)
+        if (groupName != "") {
+            if (groupMembers.length !== 0) {
+                setLoading(true)
 
-            var id = uuid.v1().replace(/-/g, '')
+                var id = uuid.v1().replace(/-/g, '')
 
-            await db.collection("groups").doc(id).set({
-                groupId: id,
-                groupOwner: auth.currentUser.uid,
-                groupName: groupName
-            })
+                await db.collection("groups").doc(id).set({
+                    groupId: id,
+                    groupOwner: auth.currentUser.uid,
+                    groupName: groupName
+                })
 
-            groupMembers.map(async (val, i) => {
-                await db.collection("requests").doc(val + "-" + id).set({
+                groupMembers.map(async (val, i) => {
+                    await db.collection("requests").doc(val + "-" + id).set({
+                        groupId: id,
+                        groupName: groupName,
+                        groupOwnerName: auth.currentUser.displayName,
+                        groupOwner: auth.currentUser.uid,
+                        userEmail: val.toLowerCase()
+                    })
+                })
+
+                await db.collection("accepted").doc(auth.currentUser.uid + "-" + id).set({
                     groupId: id,
                     groupName: groupName,
-                    groupOwnerName: auth.currentUser.displayName,
-                    groupOwner: auth.currentUser.uid,
-                    userEmail: val.toLowerCase()
+                    ready: false,
+                    userId: auth.currentUser.uid,
+                    userName: auth.currentUser.displayName,
+                    groupOwner: auth.currentUser.uid
                 })
-            })
 
-            await db.collection("accepted").doc(auth.currentUser.uid + "-" + id).set({
-                groupId: id,
-                groupName: groupName,
-                ready: false,
-                userId: auth.currentUser.uid,
-                userName: auth.currentUser.displayName,
-                groupOwner: auth.currentUser.uid
-            })
-
-            setTimeout(() => {
-                setLoading(false)
-                navigation.navigate("home")
-            }, 500)
+                setTimeout(() => {
+                    setLoading(false)
+                    navigation.navigate("home")
+                }, 500)
+            }else{
+                alert("No members added")
+            }
+            alert("No group name set")
         }
     }
 
@@ -141,12 +146,16 @@ const AddGroup = ({ navigation, route }) => {
                             <TouchableOpacity style={tw`items-center justify-center flex rounded-full p-4 bg-yellow-400 shadow-md`} onPress={() => {
                                 let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
                                 if (reg.test(addMember) === true) {
-                                    if (addMember != auth.currentUser.email) {
+                                    if (addMember.toLowerCase() != auth.currentUser.email) {
                                         if (addMember !== "") {
                                             handleAddMember(addMember)
                                             setAddMember("")
                                         }
+                                    }else{
+                                        alert("Cannot add yourself to a group")
                                     }
+                                }else{
+                                    alert("Email badly formatted")
                                 }
                             }}>
                                 <FontAwesome5 name="plus" size={24} color="black" />

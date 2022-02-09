@@ -52,6 +52,8 @@ const AddToGroup = ({ navigation, route }) => {
                     userCoords: route.params.userCoords,
                 })
             }, 500)
+        }else{
+            alert("No members added")
         }
     }
 
@@ -132,12 +134,16 @@ const AddToGroup = ({ navigation, route }) => {
                             <TouchableOpacity style={tw`items-center justify-center flex rounded-full p-4 bg-yellow-400 shadow-md`} onPress={() => {
                                 let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
                                 if (reg.test(addMember) === true) {
-                                    if (addMember != auth.currentUser.email) {
+                                    if (addMember.toLowerCase() != auth.currentUser.email) {
                                         if (addMember !== "") {
                                             handleAddMember(addMember)
                                             setAddMember("")
                                         }
+                                    }else{
+                                        alert("Cannot add yourself to a group")
                                     }
+                                }else{
+                                    alert("Email badly formatted")
                                 }
                             }}>
                                 <FontAwesome5 name="plus" size={24} color="black" />

@@ -65,6 +65,7 @@ const ReadyToGo = ({ navigation, route }) => {
 
     useEffect(() => {
         if (ready) {
+            console.log("starting timer")
             updateInformation()
             // getGroupStartCoords()
             // checkNavigation()
@@ -132,6 +133,7 @@ const ReadyToGo = ({ navigation, route }) => {
             coordsUnsubscribe.current()
         }
         if (timeoutId.current != undefined) {
+            console.log("Clear timeout")
             clearTimeout(timeoutId.current)
         }
     }
@@ -141,6 +143,8 @@ const ReadyToGo = ({ navigation, route }) => {
             maximumAge: Platform.OS === "android" && 60000, // only for Android
             accuracy: Platform.OS === "android" ? Location.Accuracy.Low : Location.Accuracy.Lowest,
         });
+        console.log("THE PLACEID")
+        console.log(placeId)
         if (placeId != "") {
             axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeId}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
                 .then(async (response) => {
@@ -275,6 +279,7 @@ const ReadyToGo = ({ navigation, route }) => {
                         latitude: parseFloat(snapshot.data().goingTolatitude),
                         longitude: parseFloat(snapshot.data().goingTolongitude)
                     })
+                    updateInfoQuick(snapshot.data().placeId)
                 } else {
                     setGoingToCoords(null)
                 }
@@ -309,6 +314,19 @@ const ReadyToGo = ({ navigation, route }) => {
 
     const cancelReady = async () => {
         unsubscribeAll()
+
+        if (groupUserStartPoints != null) {
+            if (groupUserStartPoints.length == 1) {
+                await db.collection("groups").doc(route.params.groupId).set({
+                    goingTolatitude: "",
+                    goingTolongitude: "",
+                    locationAddress: "",
+                    placeId: ""
+                }, {
+                    merge: true
+                })
+            }
+        }
 
         await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
             ready: false,
@@ -587,7 +605,7 @@ const ReadyToGo = ({ navigation, route }) => {
                                     }}
                                     placeholder='Location'
                                     autoFocus={false}
-                                    returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
+                                    returnKeyType='search' // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
                                     fetchDetails={true}
                                     enablePoweredByContainer={false}
                                     query={{
