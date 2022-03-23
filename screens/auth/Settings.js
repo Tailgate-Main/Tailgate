@@ -44,9 +44,11 @@ const Settings = ({ navigation }) => {
         })
     }
 
-    const logout = async () => {
+    const logout = () => {
+        console.log(groupsUnsubscribe.current)
+        unsubscribe()
         try {
-            await auth.signOut()
+            auth.signOut()
         }catch(e){
             console.log(e)
         }
@@ -71,8 +73,7 @@ const Settings = ({ navigation }) => {
                 </View>
                 <View>
                     <TouchableOpacity style={tw`flex-1 bg-yellow-400 flex justify-center items-center rounded-lg p-2`} onPress={async () => {
-                        unsubscribe()
-                        await logout()
+                        logout()
                         navigation.navigate("login")
                     }}>
                         <Text style={tw`text-lg font-semibold`}>Logout</Text>

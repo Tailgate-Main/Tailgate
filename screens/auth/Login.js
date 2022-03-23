@@ -96,11 +96,13 @@ const Login = ({ navigation }) => {
                     <Text style={[tw`text-black text-3xl font-semibold mb-4`]}>Login to your account</Text>
                     {
                         loading ?
-                            <TouchableOpacity style={[tw`flex-row p-2.5 bg-yellow-400  rounded-xl w-80 shadow-lg justify-center h-12 mb-2`]} onPress={() => { handleGoogleLogin() }}>
+                            <TouchableOpacity style={[tw`flex-row p-2.5 bg-yellow-400  rounded-xl w-80 shadow-lg justify-center h-12 mb-2`]}>
                                 <ActivityIndicator color="#000" animating={loading} />
                             </TouchableOpacity>
                             :
-                            <TouchableOpacity style={[tw`flex-row p-2.5 bg-yellow-400 rounded-xl w-80 shadow-lg justify-between mb-2 px-14`]} onPress={() => { handleGoogleLogin() }}>
+                            <TouchableOpacity style={[tw`flex-row p-2.5 bg-yellow-400 rounded-xl w-80 shadow-lg justify-between mb-2 px-14`]} onPress={() => { 
+                                handleGoogleLogin() 
+                            }}>
                                 <Image source={require('../../assets/login_Img/google.png')} />
                                 <Text style={[tw`text-black text-lg text-center`]}>
                                     Sign in with Google

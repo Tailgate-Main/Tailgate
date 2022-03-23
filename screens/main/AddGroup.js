@@ -71,6 +71,7 @@ const AddGroup = ({ navigation, route }) => {
             }else{
                 alert("No members added")
             }
+        }else{
             alert("No group name set")
         }
     }

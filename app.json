@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "wego",
+    "name": "WeGo",
     "slug": "wego",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/wego.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/wego.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,7 +17,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.konnect.wego"
     },
     "android": {
       "adaptiveIcon": {
