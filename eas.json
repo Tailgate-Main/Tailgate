@@ -1,0 +1,24 @@
+{
+  "cli": {
+    "version": ">= 0.48.2"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {}
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "info@konnectenterprisesllc.com",
+        "ascAppId": "1615449504",
+        "appleTeamId": "2F74A8X7NW"
+      }
+    }
+  }
+}

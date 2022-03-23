@@ -27,7 +27,7 @@ const Navigation = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [locationAddress, setLocationAddress] = useState("")
     const [initalPoints, setInitialPoints] = useState([])
-    const [placeId, setPlaceId] = useState("")
+    const placeId = useRef("")
 
     // const [data, setData] = useState([])
 
@@ -94,8 +94,36 @@ const Navigation = ({ navigation, route }) => {
 
     const updateInformation = async () => {
         let location = await Location.getCurrentPositionAsync();
-        if (placeId != "") {
-            axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeId}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
+        console.log(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeId.current}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
+            axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeId.current}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
+                .then(async (response) => {
+                    if (await response.data) {
+                        await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
+                            latitude: location.coords.latitude,
+                            longitude: location.coords.longitude,
+                            eta: await response.data.rows[0].elements[0].duration.text,
+                            distance: await response.data.rows[0].elements[0].distance.text,
+                            heading: location.coords.heading
+                        }, {
+                            merge: true
+                        })
+                    }
+
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        
+        timeoutId.current = setTimeout(() => { updateInformation() }, 20000)
+    }
+
+    const updateInfoQuick = async (placeIdIn) => {
+        let location = await Location.getCurrentPositionAsync({
+            maximumAge: Platform.OS === "android" && 60000, // only for Android
+            accuracy: Platform.OS === "android" ? Location.Accuracy.Low : Location.Accuracy.Lowest,
+        });
+        if (placeIdIn != "") {
+            axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeIdIn}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
                 .then(async (response) => {
                     if (await response.data) {
                         await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
@@ -114,25 +142,26 @@ const Navigation = ({ navigation, route }) => {
                     console.log(error);
                 });
         }
-        timeoutId.current = setTimeout(() => { updateInformation() }, 20000)
     }
 
     const getLocation = () => {
         locationUnsubscribe.current = db.collection("groups").doc(route.params.groupId).onSnapshot(snapshot => {
             setLocationAddress(snapshot.data().locationAddress)
             if (snapshot.data().goingTolatitude !== undefined) {
-                if (snapshot.data().goingTolatitude != "") {
+                if (snapshot.data().goingTolatitude !== "") {
                     setInitial.current = false
                     setGoingToCoords({
                         latitude: parseFloat(snapshot.data().goingTolatitude),
                         longitude: parseFloat(snapshot.data().goingTolongitude)
                     })
-                    setPlaceId(snapshot.data().placeId)
+                    console.log(snapshot.data().placeId)
+                    placeId.current = snapshot.data().placeId
                     setLocationAddress(snapshot.data().locationAddress)
+                    updateInfoQuick(snapshot.data().placeId)
                 } else {
                     setGoingToCoords(null)
                     // setInNavigation(false)
-                    setPlaceId("")
+                    placeId.current = ""
                 }
             } else {
                 setGoingToCoords(null)
@@ -172,12 +201,14 @@ const Navigation = ({ navigation, route }) => {
         setIsLoading(true)
         unsubscribeAll()
         if (groupUserStartPoints != null) {
-            if (groupUserStartPoints.length == 0) {
+            if (groupUserStartPoints.length == 1) {
                 await db.collection("groups").doc(route.params.groupId).set({
                     goingTolatitude: "",
                     goingTolongitude: "",
                     locationAddress: "",
                     placeId: ""
+                }, {
+                    merge: true
                 })
             }
         }
