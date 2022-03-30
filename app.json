@@ -1,10 +1,11 @@
 {
   "expo": {
-    "name": "WeGo",
+    "name": "wego",
     "slug": "wego",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/wego.png",
+    "scheme": "com.konnect.wego",
     "splash": {
       "image": "./assets/wego.png",
       "resizeMode": "contain",
@@ -18,11 +19,18 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.konnect.wego"
+      "bundleIdentifier": "com.konnect.wego",
+      "buildNumber": "33",
+      "config": {
+        "googleSignIn": {
+          "reservedClientId": "com.googleusercontent.apps.1055584929031-rc0dq5304qqlpeed6tpsrvppsnh7db7n"
+        },
+        "googleMapsApiKey": "AIzaSyCLqsLz0UL_nWR8S4T1I2NEZNf5LxE85tc"
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/wego.png",
         "backgroundColor": "#FFFFFF"
       }
     },

@@ -399,7 +399,7 @@ const Navigation = ({ navigation, route }) => {
                                         longitude: coords.longitude
                                     }}
                                     destination={goingToCoords}
-                                    apikey='AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak'
+                                    apikey='AIzaSyAK_KOiB--IhLJKe2JVoul4Zd_cAuW1lZg'
                                     strokeWidth={3}
                                     strokeColor='black'
                                     lineDashPattern={[0]}

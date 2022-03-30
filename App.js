@@ -9,7 +9,7 @@ import Navigation from "./screens/main/Navigation"
 import AddGroup from './screens/main/AddGroup';
 import Requests from './screens/main/Requests';
 import Chat from './screens/main/Chat';
-import { StatusBar, Platform } from 'react-native';
+import { StatusBar, Platform, View, Text } from 'react-native';
 import AddToGroup from './screens/main/AddToGroup';
 import Settings from './screens/auth/Settings';
 
@@ -109,6 +109,8 @@ export default function App() {
                 />
             </Stack.Navigator>
         </NavigationContainer>
+        // <View>
+        //     <Text>HELLO</Text>
+        // </View>
     );
 }
-

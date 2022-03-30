@@ -45,46 +45,47 @@ const ReadyToGo = ({ navigation, route }) => {
 
     useEffect(() => {
         async function func() {
-            updateInformation()
+            // updateInformation()
             getGroupStartCoords()
             // checkNavigation()
             getGroup()
             getLocation()
             getReady()
         }
-        const unsubscribe = navigation.addListener('focus', () => {
-            setData([])
-            setGroupUserStartPoints([])
-            setGoingToCoords(null)
-            setReady(false)
-            setInitial.current = false
-            func()
-        });
-        return unsubscribe;
+        // const unsubscribe = navigation.addListener('focus', () => {
+        //     setData([])
+        //     setGroupUserStartPoints([])
+        //     setGoingToCoords(null)
+        //     setReady(false)
+        //     setInitial.current = false
+        //     func()
+        // });
+        // return unsubscribe;
+        func()
     }, [navigation]);
 
-    useEffect(() => {
-        if (ready) {
-            console.log("starting timer")
-            updateInformation()
-            // getGroupStartCoords()
-            // checkNavigation()
-            // getGroup()
-            // getLocation()
-        } else {
-            if (timeoutId.current != undefined) {
-                clearTimeout(timeoutId.current)
-            }
-        }
-    }, [ready])
-
     // useEffect(() => {
-    //     updateInformation()
-    //     getGroupStartCoords()
-    //     checkNavigation()
-    //     getGroup()
-    //     getLocation()
-    // }, [])
+    //     if (ready) {
+    //         console.log("starting timer")
+    //         updateInformation()
+    //         // getGroupStartCoords()
+    //         // checkNavigation()
+    //         // getGroup()
+    //         // getLocation()
+    //     } else {
+    //         if (timeoutId.current != undefined) {
+    //             clearTimeout(timeoutId.current)
+    //         }
+    //     }
+    // }, [ready])
+
+    // // useEffect(() => {
+    // //     updateInformation()
+    // //     getGroupStartCoords()
+    // //     checkNavigation()
+    // //     getGroup()
+    // //     getLocation()
+    // // }, [])
 
     useEffect(() => {
         if (goingToCoords) {
@@ -143,10 +144,8 @@ const ReadyToGo = ({ navigation, route }) => {
             maximumAge: Platform.OS === "android" && 60000, // only for Android
             accuracy: Platform.OS === "android" ? Location.Accuracy.Low : Location.Accuracy.Lowest,
         });
-        console.log("THE PLACEID")
-        console.log(placeId)
         if (placeId != "") {
-            axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeId}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
+            axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeId}&units=imperial&key=AIzaSyAK_KOiB--IhLJKe2JVoul4Zd_cAuW1lZg`)
                 .then(async (response) => {
                     if (await response.data) {
                         await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
@@ -175,7 +174,7 @@ const ReadyToGo = ({ navigation, route }) => {
             accuracy: Platform.OS === "android" ? Location.Accuracy.Low : Location.Accuracy.Lowest,
         });
         if (placeIdIn != "") {
-            axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeIdIn}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
+            axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeIdIn}&units=imperial&key=AIzaSyAK_KOiB--IhLJKe2JVoul4Zd_cAuW1lZg`)
                 .then(async (response) => {
                     if (await response.data) {
                         await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({
@@ -347,6 +346,7 @@ const ReadyToGo = ({ navigation, route }) => {
     }
 
     const setLocation = async (details) => {
+
         setLocationAddress(details.formatted_address)
         setPlaceId(details.place_id)
         await db.collection("groups").doc(route.params.groupId).set({
@@ -553,7 +553,7 @@ const ReadyToGo = ({ navigation, route }) => {
                                             longitude: coords.longitude
                                         }}
                                         destination={goingToCoords}
-                                        apikey='AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak'
+                                        apikey='AIzaSyAK_KOiB--IhLJKe2JVoul4Zd_cAuW1lZg'
                                         strokeWidth={3}
                                         strokeColor='black'
                                         lineDashPattern={[0]}
@@ -564,7 +564,7 @@ const ReadyToGo = ({ navigation, route }) => {
                         }
                     </MapView>
                 </View>
-
+                        
                 <View style={tw`absolute flex justify-between h-full w-full`}
                     pointerEvents="box-none">
                     <SafeAreaView style={tw`w-full bg-yellow-400 rounded-b-3xl shadow-md`}>
@@ -600,7 +600,8 @@ const ReadyToGo = ({ navigation, route }) => {
                             <View style={tw`flex-1 m-6`} pointerEvents='box-none' keyboardShouldPersistTaps="handled"
                             >
                                 <GooglePlacesAutocomplete
-                                    onPress={(data, details = null) => {
+                                    onPress={(data, details) => {
+                                        console.log(details)
                                         setLocation(details)
                                     }}
                                     placeholder='Location'
@@ -610,7 +611,7 @@ const ReadyToGo = ({ navigation, route }) => {
                                     enablePoweredByContainer={false}
                                     query={{
                                         // available options: https://developers.google.com/places/web-service/autocomplete
-                                        key: 'AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak',
+                                        key: "AIzaSyAK_KOiB--IhLJKe2JVoul4Zd_cAuW1lZg",
                                         language: 'en', // language of the results
                                         components: 'country:us'
                                     }}
