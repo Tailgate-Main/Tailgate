@@ -152,7 +152,7 @@ const Signup = ({ navigation }) => {
         <SafeAreaView style={[tw`bg-white h-full`]}>
             <View style={tw`flex-1`}>
                 <View style={[tw`m-auto flex items-center`]}>
-                    <Text style={[tw`text-black text-3xl font-semibold mb-4`]}>Login to your account</Text>
+                    <Text style={[tw`text-black text-3xl font-semibold mb-4`]}>Sign up for an account</Text>
                     {
                         loading ?
                             <TouchableOpacity style={[tw`flex-row p-2.5 bg-yellow-400  rounded-xl w-80 shadow-lg justify-center h-12 mb-2`]}>
@@ -166,19 +166,19 @@ const Signup = ({ navigation }) => {
                             }}>
                                 <Image source={require('../../assets/login_Img/google.png')} />
                                 <Text style={[tw`text-black text-lg text-center`]}>
-                                    Sign in with Google
+                                    Sign up with Google
                                 </Text>
                             </TouchableOpacity>
                     }
 
                     <View style={[tw`flex flex-row`]}>
-                        <Text style={[tw`mr-2 text-lg`]}>Don't have an account?</Text>
+                        <Text style={[tw`mr-2 text-lg`]}>Already have an account?</Text>
                         <TouchableOpacity onPress={() => {
                             if (!loading) {
-                                navigation.navigate("signup")
+                                navigation.navigate("login")
                             }
                         }}>
-                            <Text style={[tw`mr-2 text-lg text-blue-600 text-yellow-400`]}>Signup here!</Text>
+                            <Text style={[tw`mr-2 text-lg text-blue-600 text-yellow-400`]}>Login here!</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

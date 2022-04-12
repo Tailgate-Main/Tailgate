@@ -20,12 +20,17 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.konnect.wego",
-      "buildNumber": "33",
+      "buildNumber": "35",
       "config": {
         "googleSignIn": {
           "reservedClientId": "com.googleusercontent.apps.1055584929031-rc0dq5304qqlpeed6tpsrvppsnh7db7n"
         },
         "googleMapsApiKey": "AIzaSyCLqsLz0UL_nWR8S4T1I2NEZNf5LxE85tc"
+      },
+      "infoPlist": {
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "WeGo uses your location to provide users with accurate ETA's to destinations",
+        "NSLocationAlwaysUsageDescription": "WeGo uses your location to provide users with accurate ETA's to destinations",
+        "NSLocationWhenInUseUsageDescription": "WeGo uses your location to provide users with accurate ETA's to destinations"
       }
     },
     "android": {

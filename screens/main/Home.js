@@ -38,6 +38,7 @@ const Home = ({ navigation }) => {
                 setLocationAllowed(false)
                 setLoading(false)
                 setErrorMsg('Permission to access location was denied');
+                alert("WeGo needs location permissions to provide users with real time ETAs")
                 return;
             }
             let location = await Location.getCurrentPositionAsync({
