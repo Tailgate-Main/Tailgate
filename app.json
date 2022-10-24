@@ -30,7 +30,8 @@
       "infoPlist": {
         "NSLocationAlwaysAndWhenInUseUsageDescription": "WeGo uses your location to provide users with accurate ETA's to destinations",
         "NSLocationAlwaysUsageDescription": "WeGo uses your location to provide users with accurate ETA's to destinations",
-        "NSLocationWhenInUseUsageDescription": "WeGo uses your location to provide users with accurate ETA's to destinations"
+        "NSLocationWhenInUseUsageDescription": "WeGo uses your location to provide users with accurate ETA's to destinations",
+        "CFBundleAllowMixedLocalizations": true
       }
     },
     "android": {
