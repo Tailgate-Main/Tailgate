@@ -29,49 +29,20 @@ async function login() {
 
     var provider = new firebase.auth.OAuthProvider('apple.com');
     provider.addScope('email');
-    provider.addScope('fullName');
+    provider.addScope('name');
 
-    // const credential = provider.credential({
-    //   idToken: identityToken,
-    //   rawNonce,
-    // });
+    const credential = provider.credential({
+      idToken: identityToken,
+      rawNonce,
+    });
 
+    const displayName = fullName ? `${fullName.givenName} ${fullName.familyName}` : undefined;
+    const data = { email, displayName };
 
-    // const displayName = fullName ? `${fullName.givenName} ${fullName.familyName}` : undefined;
-    // const data = { email, displayName };
+    console.log(data)
 
-    // console.log(data)
+    return [credential, data];
 
-    // return [credential, data];
-
-  firebase
-  .auth()
-  .signInWithPopup(provider)
-  .then((result) => {
-    /** @type {firebase.auth.OAuthCredential} */
-    var credential = result.credential;
-
-    // The signed-in user info.
-    var user = result.user;
-
-    // You can also get the Apple OAuth Access and ID Tokens.
-    var accessToken = credential.accessToken;
-    var idToken = credential.idToken;
-
-    // ...
-    console.log(user)
-  })
-  .catch((error) => {
-    // Handle Errors here.
-    var errorCode = error.code;
-    var errorMessage = error.message;
-    // The email of the user's account used.
-    var email = error.email;
-    // The firebase.auth.AuthCredential type that was used.
-    var credential = error.credential;
-
-    // ...
-  });
   } catch (error) {
     throw error;
   }

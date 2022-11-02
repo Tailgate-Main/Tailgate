@@ -17,79 +17,17 @@ const Signup = ({ navigation }) => {
 
     async function loginWithApple() {
         try {
-            // const [credential, data] = await authWithApple();
-            // console.log(data)
-            // console.log(credential)
-            // firebase.auth().signInWithCredential(credential);
-            firebase
-                .auth()
-                .signInWithPopup(provider)
-                .then((result) => {
-                    /** @type {firebase.auth.OAuthCredential} */
-                    var credential = result.credential;
-
-                    // The signed-in user info.
-                    var user = result.user;
-
-                    // You can also get the Apple OAuth Access and ID Tokens.
-                    var accessToken = credential.accessToken;
-                    var idToken = credential.idToken;
-
-                    // ...
-                    console.log(user)
-                })
-                .catch((error) => {
-                    // Handle Errors here.
-                    var errorCode = error.code;
-                    var errorMessage = error.message;
-                    // The email of the user's account used.
-                    var email = error.email;
-                    // The firebase.auth.AuthCredential type that was used.
-                    var credential = error.credential;
-
-                    // ...
-                });
+            const [credential, data] = await authWithApple();
+            console.log(data)
+            console.log(credential)
+            firebase.auth().signInWithCredential(credential);
         } catch (error) {
             throw error;
         }
     }
 
-    // var provider = new firebase.auth.OAuthProvider('apple.com');
-
-    // provider.addScope('email');
-    // provider.addScope('name');
-
-    // firebase
-    //     .auth()
-    //     .signInWithPopup(provider)
-    //     .then((result) => {
-    //         /** @type {firebase.auth.OAuthCredential} */
-    //         var credential = result.credential;
-
-    //         // The signed-in user info.
-    //         var user = result.user;
-
-    //         // You can also get the Apple OAuth Access and ID Tokens.
-    //         var accessToken = credential.accessToken;
-    //         var idToken = credential.idToken;
-    //         console.log(user)
-    //         // ...
-    //     })
-    //     .catch((error) => {
-    //         // Handle Errors here.
-    //         var errorCode = error.code;
-    //         var errorMessage = error.message;
-    //         // The email of the user's account used.
-    //         var email = error.email;
-    //         // The firebase.auth.AuthCredential type that was used.
-    //         var credential = error.credential;
-
-    //         // ...
-    //     });
-
-
     const [loading, setLoading] = useState(true)
-    const [request, response, wef] = Google.useIdTokenAuthRequest(
+    const [request, response, googleAuth] = Google.useIdTokenAuthRequest(
         {
             iosClientId: "1055584929031-rc0dq5304qqlpeed6tpsrvppsnh7db7n.apps.googleusercontent.com",
             expoClientId: "1055584929031-817cu9jj6ofqcs1c7amuc7f7i2pr931f.apps.googleusercontent.com"
@@ -113,16 +51,24 @@ const Signup = ({ navigation }) => {
         async function func() {
             auth.onAuthStateChanged(async (user) => {
                 if (user != null) {
+                    
                     await db.collection("users").doc(user.email).set(
                         {
                             userId: user.uid,
                             userName: user.displayName,
                             userEmail: user.email
                         })
-                    setTimeout(() => {
-                        navigation.navigate("home")
-                    }, 200)
-
+                    if(user.displayName == null){
+                        console.log("here")
+                        setTimeout(() => {
+                            navigation.navigate("setname")
+                        }, 200)
+                    }else{
+                        console.log("GOING HOME")
+                        setTimeout(() => {
+                            navigation.navigate("home")
+                        }, 200)
+                    }
                 } else {
                     setLoading(false)
 
@@ -133,10 +79,6 @@ const Signup = ({ navigation }) => {
         }
         func()
     }, []);
-
-    useEffect(() => {
-        console.log(appleAuthAvailable)
-    }, [])
 
     return (
         <SafeAreaView style={[tw`bg-white h-full`]}>
@@ -151,37 +93,14 @@ const Signup = ({ navigation }) => {
                             :
                             <View>
                                 {appleAuthAvailable &&
-                                    // <TouchableOpacity
-                                    //     buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-                                    //     buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-                                    //     cornerRadius={5}
-                                    //     // style={{
-                                    //     //     width: '100%',
-                                    //     //     height: 48,
-                                    //     //     marginTop: 16
-                                    //     // }}
-                                    //     onPress={loginWithApple}
-                                    // />
-                                    // </TouchableOpacity>
                                     <TouchableOpacity style={[tw`flex-row p-2.5 bg-black rounded-xl w-80 shadow-lg justify-between mb-2 justify-center `]} onPress={loginWithApple}>
-                                        {/* <Image source={require('../../assets/login_Img/apple.png')} style={{
-                                            flex: 1,
-                                            width: null,
-                                            height: null,
-                                            resizeMode: 'contain'
-                                        }
-                                        } /> */}
                                         <Text style={[tw`text-white text-lg text-center`]}>
                                             Sign up with Apple
                                         </Text>
                                     </TouchableOpacity>
-                                    // <Text>HELLOOOOO</Text>
-
                                 }
                                 <TouchableOpacity style={[tw`flex-row p-2.5 bg-yellow-400 rounded-xl w-80 shadow-lg justify-between mb-2 justify-center`]} onPress={() => {
-                                    // loginWithGoogle()
-                                    // alert("HELLOOO")
-                                    wef()
+                                    googleAuth()
                                 }}>
                                     {/* <Image source={require('../../assets/login_Img/google.png')} style={{
                                             flex: 1,

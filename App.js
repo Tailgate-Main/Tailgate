@@ -12,6 +12,7 @@ import Chat from './screens/main/Chat';
 import { StatusBar, Platform, View, Text } from 'react-native';
 import AddToGroup from './screens/main/AddToGroup';
 import Settings from './screens/auth/Settings';
+import SetName from './screens/auth/SetName';
 
 function SignupScreen({ navigation }) {
     return (
@@ -71,6 +72,12 @@ function ChatScreen({ navigation }){
     )
 }
 
+function SetNameScreen({ navigation }){
+    return(
+        <SetName navigation={navigation} />
+    )
+}
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -104,6 +111,8 @@ export default function App() {
                 <Stack.Screen name="addTo" component={AddToGroupScreen} options={{ gestureEnabled: false }}
                 />
                 <Stack.Screen name="settings" component={SettingsScreen} options={{ gestureEnabled: false }}
+                />
+                <Stack.Screen name="setname" component={SetNameScreen} options={{ gestureEnabled: false }}
                 />
                 <Stack.Screen name="chat" component={ChatScreen} options={{ gestureEnabled: false }}
                 />

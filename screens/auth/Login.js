@@ -7,14 +7,27 @@ import tw from "tailwind-react-native-classnames"
 import * as Google from 'expo-auth-session/providers/google';
 import firebase from "firebase"
 import * as Web from "expo-web-browser"
-import { TextInput } from 'react-native-gesture-handler';
+import useAppleAuthentication from "../../hooks/useAppleAuth"
 
 Web.maybeCompleteAuthSession();
 
 const Login = ({ navigation }) => {
 
+    const [appleAuthAvailable, authWithApple] = useAppleAuthentication();
+
+    async function loginWithApple() {
+        try {
+            const [credential, data] = await authWithApple();
+            console.log(data)
+            console.log(credential)
+            firebase.auth().signInWithCredential(credential);
+        } catch (error) {
+            throw error;
+        }
+    }
+
     const [loading, setLoading] = useState(true)
-    const [request, response, wef] = Google.useIdTokenAuthRequest(
+    const [request, response, googleAuth] = Google.useIdTokenAuthRequest(
         {
             iosClientId: "1055584929031-rc0dq5304qqlpeed6tpsrvppsnh7db7n.apps.googleusercontent.com",
             expoClientId: "1055584929031-817cu9jj6ofqcs1c7amuc7f7i2pr931f.apps.googleusercontent.com"
@@ -33,39 +46,29 @@ const Login = ({ navigation }) => {
         }
     }, [response]);
 
-    
-
-    // const [googleAuthLoading, authWithGoogle] = useGoogleAuthentication();
-
-    // async function login(credential, data) {
-    //     const user = await loginWithCredential(credential, data);
-    //   }
-
-    // async function loginWithGoogle() {
-    //     try {
-    //       const [credential] = await authWithGoogle();
-    //       await login(credential);
-    //     } catch (error) {
-    //       console.error(error);
-    //       Alert.alert('Error', 'Something went wrong. Please try again later.');
-    //     }
-    //   }
-
     useEffect(() => {
 
         async function func() {
             auth.onAuthStateChanged(async (user) => {
                 if (user != null) {
+                    
                     await db.collection("users").doc(user.email).set(
                         {
                             userId: user.uid,
                             userName: user.displayName,
                             userEmail: user.email
                         })
-                    setTimeout(() => {
-                        navigation.navigate("home")
-                    }, 200)
-
+                    if(user.displayName == null){
+                        console.log("here")
+                        setTimeout(() => {
+                            navigation.navigate("setname")
+                        }, 200)
+                    }else{
+                        console.log("GOING HOME")
+                        setTimeout(() => {
+                            navigation.navigate("home")
+                        }, 200)
+                    }
                 } else {
                     setLoading(false)
 
@@ -77,84 +80,42 @@ const Login = ({ navigation }) => {
         func()
     }, []);
 
-    // const handleGoogleLogin = () => {
-    //     const config = {
-    //         iosClientId: "1055584929031-rc0dq5304qqlpeed6tpsrvppsnh7db7n.apps.googleusercontent.com",
-    //         androidClientId: "1055584929031-knk8nandd57812sl00c2n550bnj2veqm.apps.googleusercontent.com",
-    //         scopes: ['profile', 'email']
-    //     }
-
-    //     Google.signInAsync(config)
-    //         .then((result) => {
-    //             const { type, user } = result
-    //             const { idToken, accessToken } = result;
-    //             if (type === "success") {
-    //                 const { email, name, photoUrl } = user
-    //                 const credential = firebase.auth.GoogleAuthProvider
-    //                     .credential(idToken, accessToken);
-    //                 auth.signInWithCredential(credential)
-    //                     .then(async (res) => {
-    //                         // user res, create your user, do whatever you want
-    //                         await db.collection("users").doc(res.user.email).set(
-    //                             {
-    //                                 userId: res.user.uid,
-    //                                 userName: res.user.displayName,
-    //                                 userEmail: res.user.email
-    //                             })
-    //                         setTimeout(() => {
-    //                             navigation.navigate("home")
-    //                         }, 200)
-    //                     })
-    //             } else {
-    //                 alert("Sign in not successful")
-    //             }
-    //         })
-    //         .catch((error) => {
-    //             console.log(error)
-    //             alert("AN ERROR OCCURRED")
-    //         })
-    // }
-
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-
     return (
         <SafeAreaView style={[tw`bg-white h-full`]}>
             <View style={tw`flex-1`}>
                 <View style={[tw`m-auto flex items-center`]}>
                     <Text style={[tw`text-black text-3xl font-semibold mb-4`]}>Login to your account</Text>
-                    <View style={[tw`w-full`]}>
-                        <TextInput style={[tw`border-2 rounded-xl w-80 shadow-lg justify-between mb-2 py-4 px-4`]} value={email} onChangeText={setEmail} placeholder="Email"/>
-                        <TextInput style={[tw`border-2 rounded-xl w-80 shadow-lg justify-between mb-2 py-4 px-4`]} secureTextEntry={true} value={password} onChangeText={setPassword} placeholder="Password"/>
-                        <TouchableOpacity style={[tw`p-2.5 bg-yellow-400 rounded-xl w-80 shadow-lg justify-between mb-2 px-14`]} onPress={() => {
-                        // loginWithGoogle()
-                        // alert("HELLOOO")
-                        // wef()
-                        loginWithEmailAndPassword()
-                        }}>
-                            <Text style={[tw`text-black text-lg text-center`]}>
-                                Sign in
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                    
-                    {/* {
+                    {
                         loading ?
                             <TouchableOpacity style={[tw`flex-row p-2.5 bg-yellow-400  rounded-xl w-80 shadow-lg justify-center h-12 mb-2`]}>
                                 <ActivityIndicator color="#000" animating={loading} />
                             </TouchableOpacity>
                             :
-                            <TouchableOpacity style={[tw`flex-row p-2.5 bg-yellow-400 rounded-xl w-80 shadow-lg justify-between mb-2 px-14`]} onPress={() => {
-                                // loginWithGoogle()
-                                // alert("HELLOOO")
-                                wef()
-                            }}>
-                                <Image source={require('../../assets/login_Img/google.png')} />
-                                <Text style={[tw`text-black text-lg text-center`]}>
-                                    Sign in with Google
-                                </Text>
-                            </TouchableOpacity>
-                    } */}
+                            <View>
+                                {appleAuthAvailable &&
+                                    <TouchableOpacity style={[tw`flex-row p-2.5 bg-black rounded-xl w-80 shadow-lg justify-between mb-2 justify-center `]} onPress={loginWithApple}>
+                                        <Text style={[tw`text-white text-lg text-center`]}>
+                                            Sign in with Apple
+                                        </Text>
+                                    </TouchableOpacity>
+                                }
+                                <TouchableOpacity style={[tw`flex-row p-2.5 bg-yellow-400 rounded-xl w-80 shadow-lg justify-between mb-2 justify-center`]} onPress={() => {
+                                    googleAuth()
+                                }}>
+                                    {/* <Image source={require('../../assets/login_Img/google.png')} style={{
+                                            flex: 1,
+                                            width: null,
+                                            height: null,
+                                            resizeMode: 'contain'
+                                        }
+                                        }/> */}
+                                    <Text style={[tw`text-black text-lg text-center`]}>
+                                        Sign in with Google
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+
+                    }
 
                     <View style={[tw`flex flex-row`]}>
                         <Text style={[tw`mr-2 text-lg`]}>Don't have an account?</Text>
@@ -166,6 +127,7 @@ const Login = ({ navigation }) => {
                             <Text style={[tw`mr-2 text-lg text-blue-600 text-yellow-400`]}>Signup here!</Text>
                         </TouchableOpacity>
                     </View>
+
                 </View>
             </View>
 
