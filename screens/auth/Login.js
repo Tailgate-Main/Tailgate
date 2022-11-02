@@ -33,6 +33,8 @@ const Login = ({ navigation }) => {
         }
     }, [response]);
 
+    
+
     // const [googleAuthLoading, authWithGoogle] = useGoogleAuthentication();
 
     // async function login(credential, data) {
