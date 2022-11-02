@@ -77,15 +77,11 @@ const Home = ({ navigation }) => {
 
     const getGroupData = () => {
         groupsUnsubscribe.current = db.collection("accepted").where("userId", "==", auth.currentUser.uid).onSnapshot(snapshot => {
-            let tempArr = [{
-                userId: 1,
-                groupId: 1,
-                groupName: 1
-            }]
+            let tempArr = []
             snapshot.docs.forEach((doc) => {
                 tempArr.push(doc.data())
             })
-            setData(tempArr)
+            setData([{userId: 1, groupId: 1, groupName: 1}, ...tempArr])
         })
     }
 

@@ -20,7 +20,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.konnect.wego",
-      "buildNumber": "35",
+      "buildNumber": "40",
       "config": {
         "googleSignIn": {
           "reservedClientId": "com.googleusercontent.apps.1055584929031-rc0dq5304qqlpeed6tpsrvppsnh7db7n"
@@ -42,6 +42,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2aae65c0-1e5a-4958-9d20-2b64e7025773"
+      }
     }
   }
 }

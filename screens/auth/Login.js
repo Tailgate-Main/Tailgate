@@ -7,10 +7,12 @@ import tw from "tailwind-react-native-classnames"
 import * as Google from 'expo-auth-session/providers/google';
 import firebase from "firebase"
 import * as Web from "expo-web-browser"
+import { TextInput } from 'react-native-gesture-handler';
 
 Web.maybeCompleteAuthSession();
 
 const Login = ({ navigation }) => {
+
     const [loading, setLoading] = useState(true)
     const [request, response, wef] = Google.useIdTokenAuthRequest(
         {
@@ -111,12 +113,30 @@ const Login = ({ navigation }) => {
     //         })
     // }
 
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+
     return (
         <SafeAreaView style={[tw`bg-white h-full`]}>
             <View style={tw`flex-1`}>
                 <View style={[tw`m-auto flex items-center`]}>
                     <Text style={[tw`text-black text-3xl font-semibold mb-4`]}>Login to your account</Text>
-                    {
+                    <View style={[tw`w-full`]}>
+                        <TextInput style={[tw`border-2 rounded-xl w-80 shadow-lg justify-between mb-2 py-4 px-4`]} value={email} onChangeText={setEmail} placeholder="Email"/>
+                        <TextInput style={[tw`border-2 rounded-xl w-80 shadow-lg justify-between mb-2 py-4 px-4`]} secureTextEntry={true} value={password} onChangeText={setPassword} placeholder="Password"/>
+                        <TouchableOpacity style={[tw`p-2.5 bg-yellow-400 rounded-xl w-80 shadow-lg justify-between mb-2 px-14`]} onPress={() => {
+                        // loginWithGoogle()
+                        // alert("HELLOOO")
+                        // wef()
+                        loginWithEmailAndPassword()
+                        }}>
+                            <Text style={[tw`text-black text-lg text-center`]}>
+                                Sign in
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                    
+                    {/* {
                         loading ?
                             <TouchableOpacity style={[tw`flex-row p-2.5 bg-yellow-400  rounded-xl w-80 shadow-lg justify-center h-12 mb-2`]}>
                                 <ActivityIndicator color="#000" animating={loading} />
@@ -132,7 +152,7 @@ const Login = ({ navigation }) => {
                                     Sign in with Google
                                 </Text>
                             </TouchableOpacity>
-                    }
+                    } */}
 
                     <View style={[tw`flex flex-row`]}>
                         <Text style={[tw`mr-2 text-lg`]}>Don't have an account?</Text>

@@ -18,11 +18,46 @@ const Signup = ({ navigation }) => {
     async function loginWithApple() {
         try {
             const [credential, data] = await authWithApple();
-            await login(credential, data);
+            console.log(data)
+            console.log(credential)
+            firebase.auth().signInWithCredential(credential);
         } catch (error) {
             console.error(error);
-            Alert.alert('Error', 'Something went wrong. Please try again later.');
+            // Alert.alert('Error', 'Something went wrong. Please try again later.');
         }
+
+        // var provider = new firebase.auth.OAuthProvider('apple.com');
+
+        // provider.addScope('email');
+        // provider.addScope('name');
+
+        // firebase
+        //     .auth()
+        //     .signInWithPopup(provider)
+        //     .then((result) => {
+        //         /** @type {firebase.auth.OAuthCredential} */
+        //         var credential = result.credential;
+
+        //         // The signed-in user info.
+        //         var user = result.user;
+
+        //         // You can also get the Apple OAuth Access and ID Tokens.
+        //         var accessToken = credential.accessToken;
+        //         var idToken = credential.idToken;
+        //         console.log(user)
+        //         // ...
+        //     })
+        //     .catch((error) => {
+        //         // Handle Errors here.
+        //         var errorCode = error.code;
+        //         var errorMessage = error.message;
+        //         // The email of the user's account used.
+        //         var email = error.email;
+        //         // The firebase.auth.AuthCredential type that was used.
+        //         var credential = error.credential;
+
+        //         // ...
+        //     });
     }
 
     const [loading, setLoading] = useState(true)

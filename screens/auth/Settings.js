@@ -26,6 +26,7 @@ const Settings = ({ navigation }) => {
 
     const unsubscribe = () => {
         if(groupsUnsubscribe.current != undefined){
+            console.log("UNSIBSCRIBING")
             groupsUnsubscribe.current()
         }
     }
@@ -47,6 +48,7 @@ const Settings = ({ navigation }) => {
     const logout = () => {
         console.log(groupsUnsubscribe.current)
         unsubscribe()
+        console.log(groupsUnsubscribe.current)
         try {
             auth.signOut()
         }catch(e){

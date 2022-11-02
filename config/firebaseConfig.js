@@ -15,6 +15,17 @@ const firebaseApp = firebase.initializeApp({
 // firebase.firestore().settings({
 // })
 
+const loginWithApple = async () => {
+    if (identityToken) {
+        const provider = new firebaseApp.auth.OAuthProvider("apple.com");
+        const credential = provider.credential({
+            idToken: identityToken,
+            rawNonce: nonce // nonce value from above
+        });
+        await firebaseApp.auth().signInWithCredential(credential);
+    }
+}
+
 const db = firebase.firestore()
 
 db.settings({
@@ -22,6 +33,8 @@ db.settings({
     merge: true,
     experimentalForceLongPolling: true
 })
+
+
 
 const auth = firebaseApp.auth()
 
