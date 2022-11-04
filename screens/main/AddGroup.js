@@ -33,6 +33,7 @@ const AddGroup = ({ navigation, route }) => {
     }
 
     const createGroup = async () => {
+        console.log(auth.currentUser.displayName)
         if (groupName != "") {
             if (groupMembers.length !== 0) {
                 setLoading(true)

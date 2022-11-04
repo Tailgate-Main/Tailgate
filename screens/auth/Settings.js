@@ -71,6 +71,23 @@ const Settings = ({ navigation }) => {
         })
     }
 
+    // useEffect(() => {
+    //     async function func(){
+    //         if (response) {
+    //             console.log(response)
+    //             if (response.type === 'success') {
+    //                 console.log("WEFOUHWEFIUH")
+    //                 const { id_token } = response.params;
+    //                 const provider = new firebase.auth.GoogleAuthProvider();
+    //                 const credential = provider.credential(id_token);
+    //                 console.log(credential)
+    //                 await auth.currentUser.reauthenticateWithCredential(credential);
+    //             }
+    //         }
+    //     }
+    //     func()
+    // }, [response]);
+
     const confirmDelete = async () => {
         try {
             const provider = auth.currentUser.providerData[0].providerId
@@ -80,16 +97,29 @@ const Settings = ({ navigation }) => {
                 await auth.currentUser.reauthenticateWithCredential(credential)
             }else{
                 await googleAuth()
+                if (response) {
+                    console.log(response)
+                    if (response.type === 'success') {
+                        console.log("WEFOUHWEFIUH")
+                        const { id_token } = response.params;
+                        const provider = new firebase.auth.GoogleAuthProvider();
+                        const credential = provider.credential(id_token);
+                        console.log(credential)
+                        await auth.currentUser.reauthenticateWithCredential(credential);
+                    }
+                }
             }
             
             const acceptedDocs = db.collection('accepted').where('userId', '==', auth.currentUser.uid);
-            acceptedDocs.get().then(function (querySnapshot) {
+            acceptedDocs.get().then(async function (querySnapshot) {
                 querySnapshot.forEach(function (doc) {
                     doc.ref.delete();
                 });
+                await auth.currentUser.delete()
+                setTimeout(() => {
+                    navigation.navigate("auth")
+                }, 2000)
             });
-            await auth.currentUser.delete()
-            navigation.navigate("auth")
         } catch (e) {
 
             console.log(e)
