@@ -46,6 +46,7 @@ const Settings = ({ navigation }) => {
     }, [response]);
 
     const navigateBack = () => {
+        console.log("WHA??")
         unsubscribe()
         navigation.navigate("home")
     }
@@ -115,13 +116,13 @@ const Settings = ({ navigation }) => {
                 querySnapshot.forEach(function (doc) {
                     doc.ref.delete();
                 });
-                await auth.currentUser.delete()
-                setTimeout(() => {
-                    navigation.navigate("auth")
-                }, 2000)
+                auth.currentUser.delete().then(() => {
+                    setTimeout(() => {
+                        navigation.navigate("auth")
+                    }, 2000)
+                })
             });
         } catch (e) {
-
             console.log(e)
         }
     }

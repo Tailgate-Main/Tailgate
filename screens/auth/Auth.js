@@ -95,7 +95,7 @@ const Login = ({ navigation }) => {
                             }, {merge: true})
                             setTimeout(() => {
                                 navigation.navigate("home")
-                            }, 200)
+                            }, 1000)
                     }
                 } else {
                     setLoading(false)
