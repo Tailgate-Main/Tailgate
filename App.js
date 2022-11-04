@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Auth from './screens/auth/Auth';
 import Home from './screens/main/Home';
 import ReadyToGo from './screens/main/ReadyToGo';
 import Navigation from "./screens/main/Navigation"
@@ -11,11 +10,18 @@ import Chat from './screens/main/Chat';
 import { StatusBar, Platform, View, Text } from 'react-native';
 import AddToGroup from './screens/main/AddToGroup';
 import Settings from './screens/auth/Settings';
-import SetName from './screens/auth/SetName';
+import Login from './screens/auth/Login';
+import Signup from './screens/auth/Signup';
 
-function AuthScreen({ navigation }) {
+function LoginScreen({ navigation }) {
     return (
-        <Auth navigation={navigation} />
+        <Login navigation={navigation} />
+    );
+}
+
+function SignupScreen({ navigation }) {
+    return (
+        <Signup navigation={navigation} />
     );
 }
 
@@ -65,12 +71,6 @@ function ChatScreen({ navigation }){
     )
 }
 
-function SetNameScreen({ navigation }){
-    return(
-        <SetName navigation={navigation} />
-    )
-}
-
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -86,8 +86,10 @@ export default function App() {
             <StatusBar barStyle="dark-content" />
             <Stack.Navigator screenOptions={{
                 headerShown: false
-            }} initialRouteName="auth">
-                <Stack.Screen name="auth" component={AuthScreen} options={{ gestureEnabled: false }}
+            }} initialRouteName="login">
+                <Stack.Screen name="login" component={LoginScreen} options={{ gestureEnabled: false }}
+                />
+                <Stack.Screen name="signup" component={SignupScreen} options={{ gestureEnabled: false }}
                 />
                 <Stack.Screen name="home" component={HomeScreen} options={{ gestureEnabled: false }}
                 />
@@ -102,8 +104,6 @@ export default function App() {
                 <Stack.Screen name="addTo" component={AddToGroupScreen} options={{ gestureEnabled: false }}
                 />
                 <Stack.Screen name="settings" component={SettingsScreen} options={{ gestureEnabled: false }}
-                />
-                <Stack.Screen name="setname" component={SetNameScreen} options={{ gestureEnabled: false }}
                 />
                 <Stack.Screen name="chat" component={ChatScreen} options={{ gestureEnabled: false }}
                 />
