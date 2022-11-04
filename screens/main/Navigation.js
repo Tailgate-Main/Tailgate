@@ -94,8 +94,8 @@ const Navigation = ({ navigation, route }) => {
 
     const updateInformation = async () => {
         let location = await Location.getCurrentPositionAsync();
-        console.log(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeId.current}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
-            axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins="${location.coords.latitude},${location.coords.longitude}"&destinations=place_id:${placeId.current}&units=imperial&key=AIzaSyAnUyonRDhy7merKqpA6OKPmZkL7lu6dak`)
+        console.log(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${location.coords.latitude}%2C${location.coords.longitude}&destinations=place_id:${placeId.current}&units=imperial&key=AIzaSyAK_KOiB--IhLJKe2JVoul4Zd_cAuW1lZg`)
+            axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${location.coords.latitude}%2C${location.coords.longitude}&destinations=place_id:${placeId.current}&units=imperial&key=AIzaSyAK_KOiB--IhLJKe2JVoul4Zd_cAuW1lZg`)
                 .then(async (response) => {
                     if (await response.data) {
                         await db.collection("accepted").doc(auth.currentUser.uid + "-" + route.params.groupId).set({

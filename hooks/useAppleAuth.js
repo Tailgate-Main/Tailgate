@@ -21,8 +21,6 @@ async function login() {
 
     const { identityToken, email, fullName } = appleCredential;
 
-    console.log(appleCredential)
-
     if (!identityToken) {
       throw new Error('No identity token provided.');
     }
@@ -36,10 +34,10 @@ async function login() {
       rawNonce,
     });
 
+    console.log(credential)
+
     const displayName = fullName ? `${fullName.givenName} ${fullName.familyName}` : undefined;
     const data = { email, displayName };
-
-    console.log(data)
 
     return [credential, data];
 
@@ -63,7 +61,6 @@ export default function useAppleAuthentication() {
     }
 
     if (Platform.OS === 'ios' && !authenticationLoaded) {
-        console.log("CHECKING")
       checkAvailability();
     }
   }, []);

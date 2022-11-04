@@ -20,7 +20,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.konnect.wego",
-      "buildNumber": "41",
+      "buildNumber": "42",
       "config": {
         "googleSignIn": {
           "reservedClientId": "com.googleusercontent.apps.1055584929031-rc0dq5304qqlpeed6tpsrvppsnh7db7n"

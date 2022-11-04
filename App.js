@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Signup from './screens/auth/Signup';
-import Login from './screens/auth/Login';
+import Auth from './screens/auth/Auth';
 import Home from './screens/main/Home';
 import ReadyToGo from './screens/main/ReadyToGo';
 import Navigation from "./screens/main/Navigation"
@@ -14,15 +13,9 @@ import AddToGroup from './screens/main/AddToGroup';
 import Settings from './screens/auth/Settings';
 import SetName from './screens/auth/SetName';
 
-function SignupScreen({ navigation }) {
+function AuthScreen({ navigation }) {
     return (
-        <Signup navigation={navigation} />
-    );
-}
-
-function LoginScreen({ navigation }) {
-    return (
-        <Login navigation={navigation} />
+        <Auth navigation={navigation} />
     );
 }
 
@@ -93,10 +86,8 @@ export default function App() {
             <StatusBar barStyle="dark-content" />
             <Stack.Navigator screenOptions={{
                 headerShown: false
-            }} initialRouteName="login">
-                <Stack.Screen name="signup" component={SignupScreen} options={{ gestureEnabled: false }}
-                />
-                <Stack.Screen name="login" component={LoginScreen} options={{ gestureEnabled: false }}
+            }} initialRouteName="auth">
+                <Stack.Screen name="auth" component={AuthScreen} options={{ gestureEnabled: false }}
                 />
                 <Stack.Screen name="home" component={HomeScreen} options={{ gestureEnabled: false }}
                 />
