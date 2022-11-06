@@ -72,25 +72,11 @@ const Settings = ({ navigation }) => {
         })
     }
 
-    // useEffect(() => {
-    //     async function func(){
-    //         if (response) {
-    //             console.log(response)
-    //             if (response.type === 'success') {
-    //                 console.log("WEFOUHWEFIUH")
-    //                 const { id_token } = response.params;
-    //                 const provider = new firebase.auth.GoogleAuthProvider();
-    //                 const credential = provider.credential(id_token);
-    //                 console.log(credential)
-    //                 await auth.currentUser.reauthenticateWithCredential(credential);
-    //             }
-    //         }
-    //     }
-    //     func()
-    // }, [response]);
-
     const confirmDelete = async () => {
         try {
+            console.log(groupsUnsubscribe.current)
+            unsubscribe()
+            console.log(groupsUnsubscribe.current)
             const provider = auth.currentUser.providerData[0].providerId
             if(provider == "apple.com"){
                 const [credential, data] = await authWithApple();
@@ -116,10 +102,17 @@ const Settings = ({ navigation }) => {
                 querySnapshot.forEach(function (doc) {
                     doc.ref.delete();
                 });
-                auth.currentUser.delete().then(() => {
-                    setTimeout(() => {
-                        navigation.navigate("auth")
-                    }, 2000)
+                const userDoc = db.collection('users').doc(auth.currentUser.email).delete().then(() => {
+                    // auth.currentUser.delete().then(() => {
+                    //     setTimeout(() => {
+                    //         navigation.navigate("auth")
+                    //     }, 2000)
+                    // })
+                    auth.signOut().then(() => {
+                        setTimeout(() => {
+                            navigation.navigate("auth")
+                        }, 2000)
+                    })
                 })
             });
         } catch (e) {
@@ -128,13 +121,9 @@ const Settings = ({ navigation }) => {
     }
 
     const deleteAcount = async () => {
-        console.log(groupsUnsubscribe.current)
-        unsubscribe()
-        console.log(groupsUnsubscribe.current)
-
         try {
             Alert.alert(
-                "Alert Title",
+                "WeGo",
                 "Are you sure you want to delete your account?",
                 [
                     {
